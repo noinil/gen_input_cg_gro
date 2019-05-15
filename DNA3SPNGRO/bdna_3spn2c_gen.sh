@@ -26,6 +26,6 @@ rm -f dna2c.curv
 
 echo "--------------------------------------------------------------------------------"
 echo "Making CafeMol ninfo files..."
-$DNA3SPNGRO_BIN_PATH/pdb2ninfo_DNA2c.py bdna_aa.pdb
+$DNA3SPNGRO_BIN_PATH/pdb2gro_3spn2c.py bdna_aa.pdb
 echo " DONE!"
 echo "================================================================================"
