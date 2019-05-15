@@ -31,7 +31,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     # Other undetermined parameters
     # =============================
     # "NREXCL" in "[moleculetype]"
-    MOL_NR_EXCL = -1
+    MOL_NR_EXCL = 3
     # "CGNR" in "[atoms]"
     CG_ATOM_FUNC_NR = 1
     # "f" in "[bonds]"
