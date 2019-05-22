@@ -128,11 +128,14 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         else:
             cg_dna_a_r_ID.append((i + 1) // 3 + 1)
     for i in range(cg_dna_b_p_num):
-        cg_dna_b_p_ID.append(i + 1 + cg_dna_a_p_num)
+        # cg_dna_b_p_ID.append(i + 1 + cg_dna_a_p_num)
+        cg_dna_b_p_ID.append(i + 1)
         if flag_head_phos == 1:
-            cg_dna_b_r_ID.append(i // 3 + 1 + cg_dna_a_r_num)
+            # cg_dna_b_r_ID.append(i // 3 + 1 + cg_dna_a_r_num)
+            cg_dna_b_r_ID.append(i // 3 + 1)
         else:
-            cg_dna_b_r_ID.append((i + 1) // 3 + 1 + cg_dna_a_r_num)
+            # cg_dna_b_r_ID.append((i + 1) // 3 + 1 + cg_dna_a_r_num)
+            cg_dna_b_r_ID.append((i + 1) // 3 + 1)
 
     def output_psf():
         """Output psf file for protein-DNA complex.
@@ -163,9 +166,9 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                                                 charge = cg_dna_a_p_charge[i],
                                                 mass = cg_dna_a_p_mass[i]))
         for i in range(cg_dna_b_p_num):
-            psf_file.write(PSF_ATOM_LINE.format(atom_ser = cg_dna_b_p_ID[i],
+            psf_file.write(PSF_ATOM_LINE.format(atom_ser = cg_dna_b_p_ID[i] + cg_dna_a_p_num,
                                                 seg_id = 'b',
-                                                res_ser = cg_dna_b_r_ID[i], 
+                                                res_ser = cg_dna_b_r_ID[i] + cg_dna_a_r_num, 
                                                 res_name = cg_dna_b_p_resname[i],
                                                 atom_name = cg_dna_b_p_name[i],
                                                 atom_type = cg_dna_b_p_name[i][-1],
