@@ -281,7 +281,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                     coor_s3 = cg_dna_coors[i_dna + 3]
                     ang_sp3s3 = compute_angle(coor_s, coor_p3, coor_s3)
                     k = get_angle_param("SPS", resname5 + resname3)
-                    dna_ang_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 2], cg_dna_p_ID[i_dna + 3], ang_sp3s3, k))
+                    dna_ang_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 2], cg_dna_p_ID[i_dna + 3], ang_sp3s3, k * 2))
                     # Dihedral S--P+1--S+1--B+1
                     coor_b3 = cg_dna_coors[i_dna + 4]
                     dih_sp3s3b3 = compute_dihedral(coor_s, coor_p3, coor_s3, coor_b3)
@@ -312,13 +312,13 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                 coor_b = cg_dna_coors[i_dna + 2]
                 ang_psb = compute_angle(coor_p, coor_s, coor_b)
                 k = get_angle_param("PSB", resname5 + resname3)
-                dna_ang_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 1], cg_dna_p_ID[i_dna + 2], ang_psb, k))
+                dna_ang_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 1], cg_dna_p_ID[i_dna + 2], ang_psb, k * 2))
                 if i_dna + 4 < cg_dna_p_num:
                     # angle P--S--P+1
                     coor_p3 = cg_dna_coors[i_dna + 3]
                     ang_psp3 = compute_angle(coor_p, coor_s, coor_p3)
                     k = get_angle_param("PSP", "all")
-                    dna_ang_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 1], cg_dna_p_ID[i_dna + 3], ang_psp3, k))
+                    dna_ang_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 1], cg_dna_p_ID[i_dna + 3], ang_psp3, k * 2))
                     # Dihedral P--S--P+1--S+1
                     coor_s3 = cg_dna_coors[i_dna + 4]
                     dih_psp3s3 = compute_dihedral(coor_p, coor_s, coor_p3, coor_s3)
@@ -342,7 +342,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                     coor_p3 = cg_dna_coors[i_dna + 1]
                     ang_bsp3 = compute_angle(coor_b, coor_s, coor_p3)
                     k = get_angle_param("BSP", resname5 + resname3)
-                    dna_ang_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna - 1], cg_dna_p_ID[i_dna + 1], ang_bsp3, k))
+                    dna_ang_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna - 1], cg_dna_p_ID[i_dna + 1], ang_bsp3, k * 2))
                     # Dihedral B--S--P+1--S+1
                     coor_s3 = cg_dna_coors[i_dna + 2]
                     dih_bsp3s3 = compute_dihedral(coor_b, coor_s, coor_p3, coor_s3)
@@ -405,10 +405,10 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             itp_file.write(itp_bnd_head)
             itp_file.write(itp_bnd_com1)
             for i, b in enumerate(strnd_bnd_list):
-                itp_file.write(itp_bnd_line.format(bond=b, functype=CG_BOND_FUNC2_NR, k=bond_k_2))
-            itp_file.write(itp_bnd_com2)
-            for i, b in enumerate(strnd_bnd_list):
-                itp_file.write(itp_bnd_line.format(bond=b, functype=CG_BOND_FUNC4_NR, k=bond_k_4))
+                itp_file.write(itp_bnd_line.format(bond=b, functype=CG_BOND_FUNC4_NR, k=bond_k_2*2))
+            # itp_file.write(itp_bnd_com2)
+            # for i, b in enumerate(strnd_bnd_list):
+                # itp_file.write(itp_bnd_line.format(bond=b, functype=CG_BOND_FUNC4_NR, k=bond_k_4))
             itp_file.write("\n")
             # write angle information
             itp_file.write(itp_ang_head)
