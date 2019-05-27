@@ -25,7 +25,7 @@ def main(pdb_name):
     # ==================
     # Output to gro file
     # ==================
-    pdb_name_stem = pdb_name[:4]
+    pdb_name_stem = pdb_name[:-4]
     gro_name = pdb_name_stem + ".gro"
     gro_file = open(gro_name, 'w')
     gro_file.write(GRO_HEAD_STR.format(system_info="Gro from CG PDB", time0=0))
@@ -43,12 +43,13 @@ def main(pdb_name):
                                             res_name=residue_name,
                                             atm_name=atom_name,
                                             atm_num=atom_serial,
-                                            x=coor_x,
-                                            y=coor_y,
-                                            z=coor_z,
+                                            x=coor_x / 10.0,
+                                            y=coor_y / 10.0,
+                                            z=coor_z / 10.0,
                                             vx=0.0,
                                             vy=0.0,
                                             vz=0.0))
+    gro_file.write(GRO_BOX_LINE.format(box_v1x=0.0, box_v2y=0.0, box_v3z=0.0))
     gro_file.close()
 
 if __name__ == '__main__':

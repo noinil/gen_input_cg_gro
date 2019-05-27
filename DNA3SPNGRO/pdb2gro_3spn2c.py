@@ -191,7 +191,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         vec2 = coor3 - coor2
         n_v1 = np.linalg.norm(vec1)
         n_v2 = np.linalg.norm(vec2)
-        return np.arccos(np.clip(np.dot(vec1, vec2) / n_v1 / n_v2, -1.0, 1.0))
+        return np.arccos(np.clip(np.dot(vec1, vec2) / n_v1 / n_v2, -1.0, 1.0)) / np.pi * 180.0
     def compute_dihedral(coor1, coor2, coor3, coor4):
         v_12 = coor2 - coor1
         v_23 = coor3 - coor2
