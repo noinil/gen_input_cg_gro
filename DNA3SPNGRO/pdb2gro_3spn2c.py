@@ -40,7 +40,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     # "f" in "[angles]"
     CG_ANG_FUNC_NR = 1
     # "f" in "[dihedral]" for Gaussian
-    CG_DIH_GAUSS_FUNC_NR = 22
+    CG_DIH_GAUSS_FUNC_NR = 21
     # "f" and "n" in "[dihedral]" for periodic
     CG_DIH_PERIODIC_FUNC_NR = 1
     CG_DIH_PERIODIC_FUNC_SP = 1
