@@ -206,7 +206,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         zajiao = np.dot(n1234, v_23)
         if zajiao < 0:
             dih = - dih
-        return dih - np.pi
+        return (dih - np.pi) / np.pi * 180.0
 
     def get_angle_param(angle_type, base_step):
         # get angle parameters based on angle type and base step (sequence)
