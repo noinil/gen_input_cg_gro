@@ -291,7 +291,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                         coor_p33 = cg_dna_coors[i_dna + 5]
                         dih_sp3s3p33 = compute_dihedral(coor_s, coor_p3, coor_s3, coor_p33)
                         dna_dih_P_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 2], cg_dna_p_ID[i_dna + 3], cg_dna_p_ID[i_dna + 5], dih_sp3s3p33))
-                        dna_dih_G_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 2], cg_dna_p_ID[i_dna + 3], cg_dna_p_ID[i_dna + 5], dih_sp3s3p33))
+                        dna_dih_G_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 2], cg_dna_p_ID[i_dna + 3], cg_dna_p_ID[i_dna + 5], dih_sp3s3p33 + 180.0))
             elif cg_dna_p_name[i_dna] == "DP":
                 # atom P
                 dna_atm_list[j].append((cg_dna_p_ID[i_dna],
@@ -323,7 +323,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                     coor_s3 = cg_dna_coors[i_dna + 4]
                     dih_psp3s3 = compute_dihedral(coor_p, coor_s, coor_p3, coor_s3)
                     dna_dih_P_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 1], cg_dna_p_ID[i_dna + 3], cg_dna_p_ID[i_dna + 4], dih_psp3s3))
-                    dna_dih_G_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 1], cg_dna_p_ID[i_dna + 3], cg_dna_p_ID[i_dna + 4], dih_psp3s3))
+                    dna_dih_G_list[j].append((cg_dna_p_ID[i_dna], cg_dna_p_ID[i_dna + 1], cg_dna_p_ID[i_dna + 3], cg_dna_p_ID[i_dna + 4], dih_psp3s3 + 180.0))
             elif cg_dna_p_name[i_dna] == "DB":
                 # atom Base
                 dna_atm_list[j].append((cg_dna_p_ID[i_dna],
