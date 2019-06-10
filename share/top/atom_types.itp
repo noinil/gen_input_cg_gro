@@ -34,7 +34,7 @@
   TYR       6 163.180   0.000       A      0.4135          2.5104
   VAL       6  99.140   0.000       A      0.4440          2.5104
 
-[ pairtypes ]
+[ basestacktypes ]
 ; DNA - Base Stacking
 ;   5'    3' func   epsilon     sigma thetha_bs
     DA    DA    1     13.82     0.358    100.13   
@@ -53,12 +53,14 @@
     DC    DT    1     12.42     0.399     96.05   
     DC    DG    1      8.83     0.434    100.46   
     DC    DC    1     14.01     0.384    100.68   
+[ basepairtypes ]
 ; DNA - Base Pairing
 ;    a     b func   thetha1   thetha2      phi1
     DA    DT    1    153.17    133.51    -38.18
     DT    DA    1    133.51    153.17    -38.18
     DG    DC    1    159.50    138.08    -35.75
     DC    DG    1    138.08    159.50    -35.75
+[ basecrosstypes ]
 ;DNA - Base Cross-Stacking up5'-down5'
 ;    a     b func   epsilon     sigma   thetha3 thetha_cs
     DA    DA    1     1.882     0.642      0.00    154.04  
