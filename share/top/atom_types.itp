@@ -55,11 +55,11 @@
     DC    DC    1     14.01     0.384    100.68
 [ basepairtypes ]
 ; DNA - Base Pairing
-;    a     b func   thetha1   thetha2      phi1   thetha3
-    DA    DT    1    153.17    133.51    -38.18    110.92
-    DT    DA    1    133.51    153.17    -38.18    110.92
-    DG    DC    1    159.50    138.08    -35.75    120.45
-    DC    DG    1    138.08    159.50    -35.75    120.45
+;    a     b func   thetha1   thetha2      phi1   thetha3     sigma   epsilon
+    DA    DT    1    153.17    133.51    -38.18    110.92     0.582     14.41
+    DT    DA    1    133.51    153.17    -38.18    110.92     0.582     14.41
+    DG    DC    1    159.50    138.08    -35.75    120.45     0.552     18.24
+    DC    DG    1    138.08    159.50    -35.75    120.45     0.552     18.24
 [ basecrosstypes ]
 ;DNA - Base Cross-Stacking up5'-down5'
 ;    a     b func   epsilon     sigma thetha_cs
