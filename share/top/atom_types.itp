@@ -5,12 +5,12 @@
 [ atomtypes ]
 ;DNA
 ;name       n    mass  charge   ptype        rmin             eps
-   DA       1 134.100   0.000       A    2.4795E-02    6.1479E-04
-   DG       1 150.100   0.000       A    1.3841E-02    1.9158E-04
-   DC       1 110.100   0.000       A    6.8719E-02    4.7224E-03
-   DT       1 125.100   0.000       A    1.2810E-01    1.6410E-02
-   DP       1  94.970  -0.600       A    8.3038E-03    6.8953E-05
-   DS       1  83.110   0.000       A    5.6800E-02    3.2263E-03
+   DA       1 134.100   0.000       A      0.4341          2.5104
+   DG       1 150.100   0.000       A      0.4631          2.5104
+   DC       1 110.100   0.000       A      0.4950          2.5104
+   DT       1 125.100   0.000       A      0.5142          2.5104
+   DP       1  94.970  -0.600       A      0.3112          2.5104
+   DS       1  83.110   0.000       A      0.3689          2.5104
 ;PROTEIN
 ;name       n    mass  charge   ptype        rmin             eps
   ALA       6  71.090   0.000       A      0.3943          2.5104
@@ -97,7 +97,17 @@
     DC    DT    2     2.439     0.664    115.43
     DC    DG    2     0.972     0.566    110.51
     DC    DC    2     3.250     0.680    115.80
-                         
+
+[ baseexvtypes ]
+;DNA - excluded volume radius
+;    a func     sigma
+    DA    1      0.54
+    DT    1      0.71
+    DG    1      0.49
+    DC    1      0.64
+    DP    1      0.45
+    DS    1      0.62
+
 ;[ nonbond_params ] ; Protein - Non-Local - Go contacts
 ;;   i    j    f          V(c6)         W(c12)
 ;  ALA   DA    1     0.0000E+00     6.4012E-05
