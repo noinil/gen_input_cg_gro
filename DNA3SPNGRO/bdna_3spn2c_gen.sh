@@ -5,7 +5,7 @@ export PATH=$PATH:~/Workspace/x3dna-v2.4/bin
 export X3DNA=~/Workspace/x3dna-v2.4
 
 # This tool is originally built by de Pablo's group and modified to generate
-# input files for CafeMol.
+# input files for Genesis.
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <sequence file>"
@@ -25,7 +25,7 @@ rm -f ref_frames.dat
 rm -f dna2c.curv
 
 echo "--------------------------------------------------------------------------------"
-echo "Making CafeMol ninfo files..."
+echo "Making GROMACS itp files for GENESIS..."
 $DNA3SPNGRO_BIN_PATH/pdb2gro_3spn2c.py bdna_aa.pdb
 echo " DONE!"
 echo "================================================================================"
