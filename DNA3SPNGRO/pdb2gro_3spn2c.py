@@ -444,7 +444,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         # ATOM NUM: free format int
         GRO_ATOM_NUM  = "{atom_num:>12d} \n"
         # XYZ: in the unit of nm!!!
-        GRO_ATOM_LINE = "{res_num:>5d}{res_name:>5}{atm_name:>5}{atm_num:>5d}{x:>8.4f}{y:>8.4f}{z:>8.4f}{vx:>8.4f}{vy:>8.4f}{vz:>8.4f} \n"
+        GRO_ATOM_LINE = "{res_num:>5d}{res_name:>5}{atm_name:>5}{atm_num:>5d}{x:>8.4f} {y:>8.4f} {z:>8.4f} {vx:>8.4f} {vy:>8.4f} {vz:>8.4f} \n"
         GRO_BOX_LINE  = "{box_v1x:>15.4f}{box_v2y:>15.4f}{box_v3z:>15.4f} \n\n"
 
         gro_file_name = "dna_cg.gro"
