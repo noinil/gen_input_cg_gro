@@ -98,7 +98,7 @@
     DC    DG    2     0.972     0.566    110.51
     DC    DC    2     3.250     0.680    115.80
 
-[ baseexvtypes ]
+[ cgdnaexvtypes ]
 ;DNA - excluded volume radius
 ;    a func     sigma
     DA    1      0.54
