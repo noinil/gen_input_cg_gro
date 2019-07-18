@@ -62,31 +62,31 @@ def main(PDB_name, scale_scheme):
     # =============================
     # AICG2+ Force Field Parameters
     # =============================
-    CAL2JOU     = 4.184
+    CAL2JOU                = 4.184
     # bond force constant
-    bond_k        = 110.40 * CAL2JOU * 100 * 2  # kcal * mol^-1 * nm^-2
+    BOND_K                 = 110.40 * CAL2JOU * 100 * 2  # kcal * mol^-1 * nm^-2
     # sigma for Gaussian angle
-    ang_gauss_sigma = 0.15 * 0.1  # nm
+    AICG2P_ANG_GAUSS_SIGMA = 0.15 * 0.1  # nm
     # sigma for Gaussian dihedral
-    dih_gauss_sigma = 0.15      # Rad ??
+    AICG2P_DIH_GAUSS_SIGMA = 0.15        # Rad ??
     # atomistic contact cutoff
-    dfcontact = 6.5
+    GO_ATOMIC_CUTOFF       = 6.5
     # AICG2+ pairwise interaction cutoff
-    con_atm_cutoff = 5.0
+    AICG2P_ATOMIC_CUTOFF   = 5.0
     # AICG2+ hydrogen bond cutoff
-    hb_cutoff = 3.2
+    HYDROGEN_BOND_CUTOFF   = 3.2
     # AICG2+ salt bridge cutoff
-    sb_cutoff = 3.5
+    SALT_BRIDGE_CUTOFF     = 3.5
     # AICG2+ energy cutoffs
-    ene_local_upper_lim = -0.5
-    ene_local_lower_lim = -5.0
+    AICG2P_ENE_UPPER_LIM   = -0.5
+    AICG2P_ENE_LOWER_LIM   = -5.0
     # average and general AICG2+ energy values
-    aicg2p_13_ave = 1.72
-    aicg2p_14_ave = 1.23
-    aicg2p_contact_ave = 0.55
-    aicg2p_13_gen = 1.11
-    aicg2p_14_gen = 0.87
-    aicg2p_contact_gen = 0.32
+    AICG2P_13_AVE          = 1.72
+    AICG2P_14_AVE          = 1.23
+    AICG2P_CONTACT_AVE     = 0.55
+    AICG2P_13_GEN          = 1.11
+    AICG2P_14_GEN          = 0.87
+    AICG2P_CONTACT_GEN     = 0.32
 
     # AICG2+ pairwise interaction pairs
     ITYPE_BB_HB = 1  # B-B hydrogen bonds
@@ -107,24 +107,24 @@ def main(PDB_name, scale_scheme):
     ITYPE_LR_CT = 16 # long range contacts
     ITYPE_offst = 0  # offset
 
-    pairwise_energy = [0 for i in range(17)]
-    pairwise_energy[ITYPE_BB_HB] = - 1.4247   # B-B hydrogen bonds
-    pairwise_energy[ITYPE_BB_DA] = - 0.4921   # B-B donor-accetor contacts
-    pairwise_energy[ITYPE_BB_CX] = - 0.2404   # B-B carbon-X contacts
-    pairwise_energy[ITYPE_BB_xx] = - 0.1035   # B-B other
-    pairwise_energy[ITYPE_SS_HB] = - 5.7267   # S-S hydrogen bonds
-    pairwise_energy[ITYPE_SS_SB] = -12.4878   # S-S salty bridge
-    pairwise_energy[ITYPE_SS_DA] = - 0.0308   # S-S donor-accetor contacts
-    pairwise_energy[ITYPE_SS_CX] = - 0.1113   # S-S carbon-X contacts
-    pairwise_energy[ITYPE_SS_QX] = - 0.2168   # S-S charge-X contacts
-    pairwise_energy[ITYPE_SS_xx] =   0.2306   # S-S other
-    pairwise_energy[ITYPE_SB_HB] = - 3.4819   # S-B hydrogen bonds
-    pairwise_energy[ITYPE_SB_DA] = - 0.1809   # S-B donor-accetor contacts
-    pairwise_energy[ITYPE_SB_CX] = - 0.1209   # S-B carbon-X contacts
-    pairwise_energy[ITYPE_SB_QX] = - 0.2984   # S-B charge-X contacts
-    pairwise_energy[ITYPE_SB_xx] = - 0.0487   # S-B other
-    pairwise_energy[ITYPE_LR_CT] = - 0.0395   # long range contacts
-    pairwise_energy[ITYPE_offst] = - 0.1051   # offset
+    aicg2p_pairwise_energy = [0 for i in range(17)]
+    aicg2p_pairwise_energy[ITYPE_BB_HB] = - 1.4247   # B-B hydrogen bonds
+    aicg2p_pairwise_energy[ITYPE_BB_DA] = - 0.4921   # B-B donor-accetor contacts
+    aicg2p_pairwise_energy[ITYPE_BB_CX] = - 0.2404   # B-B carbon-X contacts
+    aicg2p_pairwise_energy[ITYPE_BB_xx] = - 0.1035   # B-B other
+    aicg2p_pairwise_energy[ITYPE_SS_HB] = - 5.7267   # S-S hydrogen bonds
+    aicg2p_pairwise_energy[ITYPE_SS_SB] = -12.4878   # S-S salty bridge
+    aicg2p_pairwise_energy[ITYPE_SS_DA] = - 0.0308   # S-S donor-accetor contacts
+    aicg2p_pairwise_energy[ITYPE_SS_CX] = - 0.1113   # S-S carbon-X contacts
+    aicg2p_pairwise_energy[ITYPE_SS_QX] = - 0.2168   # S-S charge-X contacts
+    aicg2p_pairwise_energy[ITYPE_SS_xx] =   0.2306   # S-S other
+    aicg2p_pairwise_energy[ITYPE_SB_HB] = - 3.4819   # S-B hydrogen bonds
+    aicg2p_pairwise_energy[ITYPE_SB_DA] = - 0.1809   # S-B donor-accetor contacts
+    aicg2p_pairwise_energy[ITYPE_SB_CX] = - 0.1209   # S-B carbon-X contacts
+    aicg2p_pairwise_energy[ITYPE_SB_QX] = - 0.2984   # S-B charge-X contacts
+    aicg2p_pairwise_energy[ITYPE_SB_xx] = - 0.0487   # S-B other
+    aicg2p_pairwise_energy[ITYPE_LR_CT] = - 0.0395   # long range contacts
+    aicg2p_pairwise_energy[ITYPE_offst] = - 0.1051   # offset
 
 
     # =============================
@@ -145,7 +145,7 @@ def main(PDB_name, scale_scheme):
     # "f" in Flexible-type "[dihedral]"
     CG_DIH_F_FUNC_TYPE   = 22
     # "f" in Go-contacts "[pairs]"
-    CG_CONTACT_FUNC_TYPE = 22
+    CG_CONTACT_FUNC_TYPE = 2
 
 
     ###########################################################################
@@ -235,17 +235,17 @@ def main(PDB_name, scale_scheme):
         min_dist -- minimum distance between heavy atoms in two residues
         """
         for atom1 in resid1.atoms:
-            atom_name_1 = atom1.name
+            atom_name_1     = atom1.name
             if atom_name_1.startswith('H'):
                 continue
-            coor_1 = atom1.position
+            coor_1          = atom1.position
             for atom2 in resid2.atoms:
                 atom_name_2 = atom2.name
                 if atom_name_2.startswith('H'):
                     continue
-                coor_2 = atom2.position
-                dist_12 = compute_distance(coor_1, coor_2)
-                if dist_12 < dfcontact:
+                coor_2      = atom2.position
+                dist_12     = compute_distance(coor_1, coor_2)
+                if dist_12 < GO_ATOMIC_CUTOFF:
                     return True
         return False
     def count_atomic_contact(resid1, resid2):
@@ -256,35 +256,35 @@ def main(PDB_name, scale_scheme):
         Return:
         contact_count -- array of contact counts in each itype
         """
-        contact_count = [0 for i in range(17)]
+        contact_count              = [0 for i in range(17)]
         contact_count[ITYPE_offst] = 1
-        res_name_1 = resid1.resname
-        res_name_2 = resid2.resname
-        num_short_range_contact = 0
+        res_name_1                 = resid1.resname
+        res_name_2                 = resid2.resname
+        num_short_range_contact    = 0
         for atom1 in resid1.atoms:
             atom_name_1 = atom1.name
             if atom_name_1.startswith('H'):
                 continue
-            coor_1 = atom1.position
+            coor_1      = atom1.position
             for atom2 in resid2.atoms:
-                atom_name_2 = atom2.name
+                atom_name_2     = atom2.name
                 if atom_name_2.startswith('H'):
                     continue
-                coor_2 = atom2.position
-                dist_12 = compute_distance(coor_1, coor_2)
+                coor_2          = atom2.position
+                dist_12         = compute_distance(coor_1, coor_2)
 
-                is_hb = is_hb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
-                is_sb = is_sb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
+                is_hb           = is_hb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
+                is_sb           = is_sb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
                 is_nonsb_charge = is_nonsb_charge_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
-                is_1_backbone = is_backbone(atom_name_1)
-                is_2_backbone = is_backbone(atom_name_2)
-                if dist_12 < dfcontact:
+                is_1_backbone   = is_backbone(atom_name_1)
+                is_2_backbone   = is_backbone(atom_name_2)
+                if dist_12 < GO_ATOMIC_CUTOFF:
                     contact_count[ITYPE_LR_CT] += 1
-                if dist_12 < con_atm_cutoff:
-                    num_short_range_contact += 1
+                if dist_12 < AICG2P_ATOMIC_CUTOFF:
+                    num_short_range_contact    += 1
                     if is_1_backbone and is_2_backbone:
                         if is_hb:
-                            if dist_12 < hb_cutoff:
+                            if dist_12 < HYDROGEN_BOND_CUTOFF:
                                 contact_count[ITYPE_BB_HB] += 1
                             else:
                                 contact_count[ITYPE_BB_DA] += 1
@@ -295,11 +295,11 @@ def main(PDB_name, scale_scheme):
                     elif ( not is_1_backbone ) and ( not is_2_backbone ):
                         if is_hb:
                             if is_sb:
-                                if dist_12 < sb_cutoff:
+                                if dist_12 < SALT_BRIDGE_CUTOFF:
                                     contact_count[ITYPE_SS_SB] += 1
                                 else:
                                     contact_count[ITYPE_SS_QX] += 1
-                            elif dist_12 < hb_cutoff:
+                            elif dist_12 < HYDROGEN_BOND_CUTOFF:
                                 contact_count[ITYPE_SS_HB] += 1
                             elif is_nonsb_charge:
                                 contact_count[ITYPE_SS_QX] += 1
@@ -314,7 +314,7 @@ def main(PDB_name, scale_scheme):
                     elif ( is_1_backbone and ( not is_2_backbone ) ) or \
                          ( is_2_backbone and ( not is_1_backbone ) ):
                         if is_hb:
-                            if dist_12 < hb_cutoff:
+                            if dist_12 < HYDROGEN_BOND_CUTOFF:
                                 contact_count[ITYPE_SB_HB] += 1
                             elif is_nonsb_charge:
                                 contact_count[ITYPE_SB_QX] += 1
@@ -327,7 +327,7 @@ def main(PDB_name, scale_scheme):
                         else:
                             contact_count[ITYPE_SB_xx] += 1
         # control the number of long-range contacts
-        if dfcontact > con_atm_cutoff:
+        if GO_ATOMIC_CUTOFF > AICG2P_ATOMIC_CUTOFF:
             contact_count[ITYPE_LR_CT] -= num_short_range_contact
         else:
             contact_count[ITYPE_LR_CT] = 0
@@ -356,16 +356,16 @@ def main(PDB_name, scale_scheme):
     # ===============
     # Core structures
     # ===============
-    cg_pro_coors    = np.empty([cg_pro_num, 3])
-    top_cg_pro_atoms = []
-    top_cg_pro_bonds = []
-    top_cg_pro_angles = []
-    top_cg_pro_dihedrals = []
-    top_cg_pro_13 = []
-    top_cg_pro_14 = []
-    top_cg_pro_contact = []
-    param_cg_pro_e_13 = []
-    param_cg_pro_e_14 = []
+    cg_pro_coors           = np.empty([cg_pro_num, 3])
+    top_cg_pro_atoms       = []
+    top_cg_pro_bonds       = []
+    top_cg_pro_angles      = []
+    top_cg_pro_dihedrals   = []
+    top_cg_pro_13          = []
+    top_cg_pro_14          = []
+    top_cg_pro_contact     = []
+    param_cg_pro_e_13      = []
+    param_cg_pro_e_14      = []
     param_cg_pro_e_contact = []
 
     # ====================================
@@ -397,32 +397,32 @@ def main(PDB_name, scale_scheme):
     # bonds
     # =====
     for i in range(cg_pro_num - 1):
-        cai = calpha_list[i]
-        caj = calpha_list[i + 1]
-        segi = cai.segid
-        segj = caj.segid
+        cai      = calpha_list[i]
+        caj      = calpha_list[i + 1]
+        segi     = cai.segid
+        segj     = caj.segid
         if segi != segj:
             continue
-        coori = cai.position
-        coorj = caj.position
-        dist_ij = compute_distance(coori, coorj)
+        coori    = cai.position
+        coorj    = caj.position
+        dist_ij  = compute_distance(coori, coorj)
         top_cg_pro_bonds.append((i + 1, dist_ij))
 
     # ======
     # angles
     # ======
     e_ground_local = 0.0
-    e_ground_13 = 0.0
-    mba = 0
+    e_ground_13    = 0.0
+    num_angle      = 0
     for i in range(cg_pro_num - 2):
-        cai = calpha_list[i]
-        cak = calpha_list[i + 2]
+        cai  = calpha_list[i]
+        cak  = calpha_list[i + 2]
         segi = cai.segid
         segk = cak.segid
         if segk != segi:
             continue
-        coori = cai.position
-        coork = cak.position
+        coori   = cai.position
+        coork   = cak.position
         dist_ik = compute_distance(coori, coork)
         top_cg_pro_angles.append(i + 1)
         top_cg_pro_13.append((i + 1, dist_ik))
@@ -432,33 +432,31 @@ def main(PDB_name, scale_scheme):
         rk = pro_atom_group.residues[i + 2]
         contact_counts = count_atomic_contact(ri, rk)
 
-        print("{0:>2d} {1:>2d}>{2}".format(i, i+1, contact_counts[1:]))
-
         # calculate AICG2+ pairwise energy
         e_local = 0
         for n, w in enumerate( contact_counts ):
-            e_local += w * pairwise_energy[n]
-        if e_local > ene_local_upper_lim:
-            e_local = ene_local_upper_lim
-        if e_local < ene_local_lower_lim:
-            e_local = ene_local_lower_lim
+            e_local += w * aicg2p_pairwise_energy[n]
+        if e_local > AICG2P_ENE_UPPER_LIM:
+            e_local = AICG2P_ENE_UPPER_LIM
+        if e_local < AICG2P_ENE_LOWER_LIM:
+            e_local = AICG2P_ENE_LOWER_LIM
         e_ground_local += e_local
-        e_ground_13 += e_local
-        mba += 1
+        e_ground_13    += e_local
+        num_angle      += 1
         param_cg_pro_e_13.append(e_local)
 
     # =========
     # dihedrals
     # =========
     e_ground_14 = 0.0
-    mdih = 0
+    num_dih = 0
     for i in range(cg_pro_num - 3):
-        cai = calpha_list[i]
-        caj = calpha_list[i + 1]
-        cak = calpha_list[i + 2]
-        cal = calpha_list[i + 3]
-        segi = cai.segid
-        segl = cal.segid
+        cai   = calpha_list[i]
+        caj   = calpha_list[i + 1]
+        cak   = calpha_list[i + 2]
+        cal   = calpha_list[i + 3]
+        segi  = cai.segid
+        segl  = cal.segid
         if segl != segi:
             continue
         coori = cai.position
@@ -477,33 +475,33 @@ def main(PDB_name, scale_scheme):
         # calculate AICG2+ pairwise energy
         e_local = 0
         for n, w in enumerate( contact_counts ):
-            e_local += w * pairwise_energy[n]
-        if e_local > ene_local_upper_lim:
-            e_local = ene_local_upper_lim
-        if e_local < ene_local_lower_lim:
-            e_local = ene_local_lower_lim
+            e_local += w * aicg2p_pairwise_energy[n]
+        if e_local > AICG2P_ENE_UPPER_LIM:
+            e_local = AICG2P_ENE_UPPER_LIM
+        if e_local < AICG2P_ENE_LOWER_LIM:
+            e_local = AICG2P_ENE_LOWER_LIM
         e_ground_local += e_local
         e_ground_14 += e_local
-        mdih += 1
+        num_dih += 1
         param_cg_pro_e_14.append(e_local)
 
     # =========
     # Normalize
     # =========
-    e_ground_local /= (mba + mdih)
-    e_ground_13 /= mba
-    e_ground_14 /= mdih
+    e_ground_local /= (num_angle + num_dih)
+    e_ground_13    /= num_angle
+    e_ground_14    /= num_dih
     
     if scale_scheme == 0:
         for i in range(len(param_cg_pro_e_13)):
-            param_cg_pro_e_13[i] *= aicg2p_13_ave / e_ground_13
+            param_cg_pro_e_13[i] *= AICG2P_13_AVE / e_ground_13
         for i in range(len(param_cg_pro_e_14)):
-            param_cg_pro_e_14[i] *= aicg2p_14_ave / e_ground_14
+            param_cg_pro_e_14[i] *= AICG2P_14_AVE / e_ground_14
     elif scale_scheme == 1:
         for i in range(len(param_cg_pro_e_13)):
-            param_cg_pro_e_13[i] *= -aicg2p_13_gen
+            param_cg_pro_e_13[i] *= -AICG2P_13_GEN
         for i in range(len(param_cg_pro_e_14)):
-            param_cg_pro_e_14[i] *= -aicg2p_14_gen
+            param_cg_pro_e_14[i] *= -AICG2P_14_GEN
 
     # ======================================================
     # Native contacts and aicg2+ pairwise energy coefficient
@@ -529,11 +527,11 @@ def main(PDB_name, scale_scheme):
                 # calculate AICG2+ pairwise energy
                 e_local = 0
                 for n, w in enumerate( contact_counts ):
-                    e_local += w * pairwise_energy[n]
-                if e_local > ene_local_upper_lim:
-                    e_local = ene_local_upper_lim
-                if e_local < ene_local_lower_lim:
-                    e_local = ene_local_lower_lim
+                    e_local += w * aicg2p_pairwise_energy[n]
+                if e_local > AICG2P_ENE_UPPER_LIM:
+                    e_local = AICG2P_ENE_UPPER_LIM
+                if e_local < AICG2P_ENE_LOWER_LIM:
+                    e_local = AICG2P_ENE_LOWER_LIM
                 e_ground_contact += e_local
                 num_contact += 1
                 param_cg_pro_e_contact.append(e_local)
@@ -543,10 +541,10 @@ def main(PDB_name, scale_scheme):
 
     if scale_scheme == 0:
         for i in range(len(param_cg_pro_e_contact)):
-            param_cg_pro_e_contact[i] *= aicg2p_contact_ave / e_ground_contact
+            param_cg_pro_e_contact[i] *= AICG2P_CONTACT_AVE / e_ground_contact
     elif scale_scheme == 1:
         for i in range(len(param_cg_pro_e_contact)):
-            param_cg_pro_e_contact[i] *= -aicg2p_contact_gen
+            param_cg_pro_e_contact[i] *= -AICG2P_CONTACT_GEN
 
 
     ###########################################################################
@@ -562,33 +560,49 @@ def main(PDB_name, scale_scheme):
     # Output .itp file
     # ================
     def output_itp():
-        itp_mol_head = "[ moleculetype ] \n"
-        itp_mol_comm = ";{0:15} {1:>6} \n".format("name", "nrexcl")
-        itp_mol_line = "{0:16} {1:>6d} \n"
+        itp_mol_head = "[ moleculetype ]\n"
+        itp_mol_comm = ";{0:15} {1:>6}\n".format("name", "nrexcl")
+        itp_mol_line = "{0:16} {1:>6d}\n"
 
-        itp_atm_head = "[ atoms ] \n"
+        itp_atm_head = "[ atoms ]\n"
         itp_atm_comm = ";{0:>9}{1:>5}{2:>10}{3:>5}{4:>5}{5:>5}{6:>8}{7:>8}\n".format("nr", "type", "resnr", "res", "atom", "cg", "charge", "mass")
-        itp_atm_line = "{a[2]:>10d}{a[1]:>5}{a[0]:>10d}{a[1]:>5}{a[3]:>5}{cgnr:>5d}{a[4]:>8.3f}{a[5]:>8.3f} \n"
+        itp_atm_line = "{a[2]:>10d}{a[1]:>5}{a[0]:>10d}{a[1]:>5}{a[3]:>5}{cgnr:>5d}{a[4]:>8.3f}{a[5]:>8.3f}\n"
+        # itp_atm_line = "{a[2]:>6d}{a[1]:>8}{a[0]:>8d}{a[1]:>8}{a[3]:>8}{cgnr:>8d}{a[4]:>8.3f}{a[5]:>8.3f}\n"
 
-        itp_bnd_head = "[ bonds ] \n"
-        itp_bnd_comm = ";{0:>9}{1:>10}{2:>5}{3:>18}{4:>18} \n".format("i", "j", "f", "eq", "k2")
-        itp_bnd_line = "{bi:>10d}{bj:>10d}{functype:>5d}{eq:>18.4E}{k:>18.4E} \n"
+        itp_bnd_head = "[ bonds ]\n"
+        itp_bnd_comm = ";{0:>9}{1:>10}{2:>5}{3:>18}{4:>18}\n".format("i", "j", "f", "eq", "k2")
+        itp_bnd_line = "{bi:>10d}{bj:>10d}{functype:>5d}{eq:>18.4E}{k:>18.4E}\n"
+        # itp_bnd_line = "{bi:>5d}{bj:>5d}{functype:>5d}{eq:>15.4E}{k:>15.4E}\n"
 
-        itp_13_head = "[ angles ] ; AICG2+ 1-3 interaction \n"
-        itp_13_comm = ";{0:>9}{1:>10}{2:>10}{3:>5}{4:>15}{5:>15}{6:>15} \n".format("i", "j", "k", "f", "eq", "k", "w")
-        itp_13_line = "{ai:>10d}{aj:>10d}{ak:>10d}{functype:>5d}{eq:>15.4E}{k:>15.4E}{w:>15.4E} \n"
+        itp_13_head = "[ angles ] ; AICG2+ 1-3 interaction\n"
+        itp_13_comm = ";{0:>9}{1:>10}{2:>10}{3:>5}{4:>15}{5:>15}{6:>15}\n".format("i", "j", "k", "f", "eq", "k", "w")
+        itp_13_line = "{ai:>10d}{aj:>10d}{ak:>10d}{functype:>5d}{eq:>15.4E}{k:>15.4E}{w:>15.4E}\n"
+        # itp_13_line = "{ai:>5d}{aj:>5d}{ak:>5d}{functype:>5d}{eq:>15.4E}{k:>15.4E}{w:>15.4E}\n"
 
-        itp_ang_head = "[ angles ] ; AICG2+ flexible local interaction \n"
-        itp_ang_comm = ";{0:>9}{1:>10}{2:>10}{3:>5} \n".format("i", "j", "k", "f")
-        itp_ang_line = "{ai:>10d}{aj:>10d}{ak:>10d}{functype:>5d} \n"
+        itp_ang_head = "[ angles ] ; AICG2+ flexible local interaction\n"
+        itp_ang_comm = ";{0:>9}{1:>10}{2:>10}{3:>5}\n".format("i", "j", "k", "f")
+        itp_ang_line = "{ai:>10d}{aj:>10d}{ak:>10d}{functype:>5d}\n"
+        # itp_ang_line = "{ai:>5d}{aj:>5d}{ak:>5d}{functype:>5d}\n"
 
-        itp_dih_G_head = "[ dihedrals ] ; AICG2+ Gaussian dihedrals \n"
-        itp_dih_G_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5}{5:>15}{6:>15}{7:>15} \n".format("i", "j", "k", "l", "f", "eq", "k", "w")
-        itp_dih_G_line = "{di:>10d}{dj:>10d}{dk:>10d}{dl:>10d}{functype:>5d}{eq:>15.4E}{k:>15.4E}{sig:>15.4E} \n"
+        itp_dih_G_head = "[ dihedrals ] ; AICG2+ Gaussian dihedrals\n"
+        itp_dih_G_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5}{5:>15}{6:>15}{7:>15}\n".format("i", "j", "k", "l", "f", "eq", "k", "w")
+        itp_dih_G_line = "{di:>10d}{dj:>10d}{dk:>10d}{dl:>10d}{functype:>5d}{eq:>15.4E}{k:>15.4E}{sig:>15.4E}\n"
+        # itp_dih_G_line = "{di:>5d}{dj:>5d}{dk:>5d}{dl:>5d}{functype:>5d}{eq:>15.4E}{k:>15.4E}{sig:>15.4E}\n"
 
-        itp_dih_F_head = "[ dihedrals ] ; AICG2+ flexible local interation \n"
-        itp_dih_F_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5} \n".format("i", "j", "k", "l", "f")
-        itp_dih_F_line = "{di:>10d}{dj:>10d}{dk:>10d}{dl:>10d}{functype:>5d} \n"
+        itp_dih_F_head = "[ dihedrals ] ; AICG2+ flexible local interation\n"
+        itp_dih_F_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5}\n".format("i", "j", "k", "l", "f")
+        itp_dih_F_line = "{di:>10d}{dj:>10d}{dk:>10d}{dl:>10d}{functype:>5d}\n"
+        # itp_dih_F_line = "{di:>5d}{dj:>5d}{dk:>5d}{dl:>5d}{functype:>5d}\n"
+
+        itp_contact_head = "[ pairs ] ; Go-type native contact\n"
+        itp_contact_comm = ";{0:>9}{1:>10}{2:>10}{3:>15}{4:>15}\n".format("i", "j", "f", "eq", "k")
+        itp_contact_line = "{di:>10d}{dj:>10d}{functype:>10d}{eq:>15.4E}{k:>15.4E}\n"
+        # itp_contact_line = "{di:>5d}{dj:>5d}{functype:>5d}{eq:>15.4E}{k:>15.4E}\n"
+
+        itp_exc_head = "[ exclusions ] ; Genesis exclusion list\n"
+        itp_exc_comm = ";{0:>9}{1:>10}\n".format("i", "j")
+        itp_exc_line = "{di:>10d}{dj:>10d}\n"
+        # itp_exc_line = "{di:>5d}{dj:>5d}\n"
 
 
         itp_name = protein_name + ".itp"
@@ -616,7 +630,7 @@ def main(PDB_name, scale_scheme):
                                                bj       = b[0] + 1,
                                                functype = CG_BOND_FUNC_TYPE,
                                                eq       = b[1] * 0.1,
-                                               k        = bond_k))
+                                               k        = BOND_K))
         itp_file.write("\n")
 
         # write 13 interaction information
@@ -629,7 +643,7 @@ def main(PDB_name, scale_scheme):
                                                functype = CG_ANG_G_FUNC_TYPE,
                                                eq       = a[1] * 0.1,
                                                k        = param_cg_pro_e_13[i] * CAL2JOU,
-                                               w        = ang_gauss_sigma))
+                                               w        = AICG2P_ANG_GAUSS_SIGMA))
         itp_file.write("\n")
 
         # write angle interaction information
@@ -653,7 +667,7 @@ def main(PDB_name, scale_scheme):
                                                  functype = CG_DIH_G_FUNC_TYPE,
                                                  eq       = d[1],
                                                  k        = param_cg_pro_e_14[i] * CAL2JOU,
-                                                 sig      = dih_gauss_sigma))
+                                                 sig      = AICG2P_DIH_GAUSS_SIGMA))
         itp_file.write("\n")
 
         # write local flexible dihedral information
@@ -665,6 +679,25 @@ def main(PDB_name, scale_scheme):
                                                  dk       = d + 2, 
                                                  dl       = d + 3, 
                                                  functype = CG_DIH_F_FUNC_TYPE))
+        itp_file.write("\n")
+
+        # write Go-type native contacts
+        itp_file.write(itp_contact_head)
+        itp_file.write(itp_contact_comm)
+        for i, c in enumerate(top_cg_pro_contact):
+            itp_file.write(itp_contact_line.format(di       = c[0],
+                                                   dj       = c[1], 
+                                                   functype = CG_CONTACT_FUNC_TYPE,
+                                                   eq       = c[2] * 0.1,
+                                                   k        = param_cg_pro_e_contact[i] * CAL2JOU))
+        itp_file.write("\n")
+
+        # write Genesis local-exclusion list
+        itp_file.write(itp_exc_head)
+        itp_file.write(itp_exc_comm)
+        for i, c in enumerate(top_cg_pro_contact):
+            itp_file.write(itp_exc_line.format(di       = c[0],
+                                               dj       = c[1]))
         itp_file.write("\n")
 
         itp_file.close()
@@ -682,7 +715,6 @@ def main(PDB_name, scale_scheme):
         # ATOM NUM: free format int
         GRO_ATOM_NUM  = "{atom_num:>12d} \n"
         # XYZ: in the unit of nm!!!
-        # GRO_ATOM_LINE = "{res_num:>5d}{res_name:>5}{atm_name:>5}{atm_num:>5d} {x:>8.4f} {y:>8.4f} {z:>8.4f} {vx:>8.4f} {vy:>8.4f} {vz:>8.4f} \n"
         GRO_ATOM_LINE = "{a[0]:>5d}{a[1]:>5}{a[3]:>5}{a[2]:>5d} {x[0]:>8.4f} {x[1]:>8.4f} {x[2]:>8.4f} {v[0]:>8.4f} {v[1]:>8.4f} {v[2]:>8.4f} \n"
         GRO_BOX_LINE  = "{box_v1x:>15.4f}{box_v2y:>15.4f}{box_v3z:>15.4f} \n\n"
 
