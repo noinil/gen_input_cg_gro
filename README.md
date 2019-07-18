@@ -7,9 +7,9 @@ File format is in gromacs style.
 ## Dependencies
 
 ### python packages
-- numpy
-- MDAnalysis
-- tqdm
+- [numpy](https://numpy.org/)
+- [MDAnalysis](https://www.mdanalysis.org/)
+- [tqdm](https://github.com/tqdm/tqdm)
 
 ### other
 - [3dna](http://x3dna.org/)
