@@ -9,6 +9,7 @@ File format is in gromacs style.
 ### python packages
 - numpy
 - MDAnalysis
+- tqdm
 
 ### other
 - [3dna](http://x3dna.org/)
@@ -51,3 +52,8 @@ What we get:
 - Two `.itp` topology files for the two strands of dsDNA
 
 ![DNA 3SPN.2C file preparation.](/share/img/dna_3spn2c.gif)
+
+**Note**: the current version runs very slow for CG DNA, because of calling the
+"select" function in MDAnalysis.  However I'm too lazy to write another code to
+solve this speed problem, although we definitely need it for large biological
+systems.
