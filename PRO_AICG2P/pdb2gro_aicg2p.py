@@ -2,6 +2,7 @@
 
 import numpy as np
 import MDAnalysis
+from tqdm import tqdm
 
 def main(PDB_name, scale_scheme):
     ###########################################################################
@@ -347,6 +348,7 @@ def main(PDB_name, scale_scheme):
     # |___|_| \_|_|    \___/  |_|  
     # 
     ###########################################################################
+    print("> Step 1: open PDB file.")
     u = MDAnalysis.Universe(PDB_name)
     pro_atom_group = u.select_atoms("protein")
 
@@ -378,7 +380,8 @@ def main(PDB_name, scale_scheme):
         print(" ERROR! Number of C_alpha is not equal to number of residues!")
         exit()
 
-    for i, ca in enumerate(calpha_list):
+    print("> Step 2: find out alpha carbons.")
+    for i, ca in enumerate(tqdm( calpha_list )):
         cg_pro_coors[i] = ca.position
         charge = aa_charge_dict[ca.resname]
         mass = aa_mass_dict[ca.resname]
@@ -396,7 +399,8 @@ def main(PDB_name, scale_scheme):
     # =====
     # bonds
     # =====
-    for i in range(cg_pro_num - 1):
+    print("> Step 3: calculate bonds.")
+    for i in tqdm( range(cg_pro_num - 1) ):
         cai      = calpha_list[i]
         caj      = calpha_list[i + 1]
         segi     = cai.segid
@@ -411,10 +415,11 @@ def main(PDB_name, scale_scheme):
     # ======
     # angles
     # ======
+    print("> Step 4: calculate angles.")
     e_ground_local = 0.0
     e_ground_13    = 0.0
     num_angle      = 0
-    for i in range(cg_pro_num - 2):
+    for i in tqdm( range(cg_pro_num - 2) ):
         cai  = calpha_list[i]
         cak  = calpha_list[i + 2]
         segi = cai.segid
@@ -448,9 +453,10 @@ def main(PDB_name, scale_scheme):
     # =========
     # dihedrals
     # =========
+    print("> Step 5: calculate dihedrals.")
     e_ground_14 = 0.0
     num_dih = 0
-    for i in range(cg_pro_num - 3):
+    for i in tqdm( range(cg_pro_num - 3) ):
         cai   = calpha_list[i]
         caj   = calpha_list[i + 1]
         cak   = calpha_list[i + 2]
@@ -506,9 +512,10 @@ def main(PDB_name, scale_scheme):
     # ======================================================
     # Native contacts and aicg2+ pairwise energy coefficient
     # ======================================================
+    print("> Step 6: calculate native contacts.")
     e_ground_contact = 0.0
     num_contact = 0
-    for i in range(cg_pro_num - 4):
+    for i in tqdm( range(cg_pro_num - 4) ):
         cai = calpha_list[i]
         coor_cai = cai.position
         residi = pro_atom_group.residues[i]
@@ -565,8 +572,8 @@ def main(PDB_name, scale_scheme):
         itp_mol_line = "{0:16} {1:>6d}\n"
 
         itp_atm_head = "[ atoms ]\n"
-        itp_atm_comm = ";{0:>9}{1:>5}{2:>10}{3:>5}{4:>5}{5:>5}{6:>8}{7:>8}\n".format("nr", "type", "resnr", "res", "atom", "cg", "charge", "mass")
-        itp_atm_line = "{a[2]:>10d}{a[1]:>5}{a[0]:>10d}{a[1]:>5}{a[3]:>5}{cgnr:>5d}{a[4]:>8.3f}{a[5]:>8.3f}\n"
+        itp_atm_comm = ";{0:>9}{1:>5}{2:>10}{3:>5}{4:>5}{5:>5} {6:>8} {7:>8}\n".format("nr", "type", "resnr", "res", "atom", "cg", "charge", "mass")
+        itp_atm_line = "{a[2]:>10d}{a[1]:>5}{a[0]:>10d}{a[1]:>5}{a[3]:>5}{cgnr:>5d} {a[4]:>8.3f} {a[5]:>8.3f}\n"
         # itp_atm_line = "{a[2]:>6d}{a[1]:>8}{a[0]:>8d}{a[1]:>8}{a[3]:>8}{cgnr:>8d}{a[4]:>8.3f}{a[5]:>8.3f}\n"
 
         itp_bnd_head = "[ bonds ]\n"
@@ -702,6 +709,7 @@ def main(PDB_name, scale_scheme):
 
         itp_file.close()
 
+    print("> Step 7: output topology information to itp.")
     output_itp()
 
     # ================
@@ -729,6 +737,8 @@ def main(PDB_name, scale_scheme):
                                                 v = [0.0, 0.0, 0.0]))
         gro_file.write(GRO_BOX_LINE.format(box_v1x =0.0, box_v2y =0.0, box_v3z =0.0))
         gro_file.close()
+
+    print("> Step 8: output coordinate information to gro.")
     output_gro()
 
 
@@ -741,4 +751,7 @@ if __name__ == '__main__':
                             help="Scale local interactions: 0) average; 1) general")
         return parser.parse_args()
     args = parse_arguments()
+    print("> Welcome!")
+    print("> This tool helps you prepare CG protein files for MD simulations in Genesis.")
+    print("> ------ ")
     main(args.pdb, args.scale)
