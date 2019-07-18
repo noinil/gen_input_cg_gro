@@ -3,7 +3,7 @@
 import numpy as np
 import MDAnalysis
 
-def main(PDB_name, is_scaled):
+def main(PDB_name, scale_scheme):
     ###########################################################################
     #                         Variables and constants                         #
     ###########################################################################
@@ -80,6 +80,13 @@ def main(PDB_name, is_scaled):
     # AICG2+ energy cutoffs
     ene_local_upper_lim = -0.5
     ene_local_lower_lim = -5.0
+    # average and general AICG2+ energy values
+    aicg2p_13_ave = 1.72
+    aicg2p_14_ave = 1.23
+    aicg2p_contact_ave = 0.55
+    aicg2p_13_gen = 1.11
+    aicg2p_14_gen = 0.87
+    aicg2p_contact_gen = 0.32
 
     # AICG2+ pairwise interaction pairs
     ITYPE_BB_HB = 1  # B-B hydrogen bonds
@@ -166,7 +173,8 @@ def main(PDB_name, is_scaled):
         zajiao    = np.dot(n1234, v_23)
         if zajiao < 0:
             dih   = - dih
-        return (dih - np.pi) / np.pi * 180.0
+        # return (dih - np.pi) / np.pi * 180.0
+        return dih / np.pi * 180.0
     def is_backbone(atom_name):
         if atom_name in ['N', 'C', 'O', 'OXT', 'CA']:
             return True
@@ -183,7 +191,7 @@ def main(PDB_name, is_scaled):
                 return True
         return False
     def is_hb_acceptor(atom_name):
-        if atom_name.startswith('O') or atom_name.startwith('S'):
+        if atom_name.startswith('O') or atom_name.startswith('S'):
             return True
         return False
     def is_cation(atom_name, res_name):
@@ -202,9 +210,9 @@ def main(PDB_name, is_scaled):
                 return True
         return False
     def is_hb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2):
-        if is_hb_acceptor(atom_name_1, res_name_1) and is_hb_donor(atom_name_2, res_name_2):
+        if is_hb_acceptor(atom_name_1) and is_hb_donor(atom_name_2, res_name_2):
             return True
-        if is_hb_acceptor(atom_name_2, res_name_2) and is_hb_donor(atom_name_1, res_name_1):
+        if is_hb_acceptor(atom_name_2) and is_hb_donor(atom_name_1, res_name_1):
             return True
         return False
     def is_sb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2):
@@ -219,7 +227,28 @@ def main(PDB_name, is_scaled):
         if is_anion(atom_name_2, res_name_2)  and is_anion(atom_name_1, res_name_1):
             return True
         return False
-
+    def is_go_contact(resid1, resid2):
+        """
+        Keyword Arguments:
+        resid1 -- residue 1
+        resid2 -- residue 2
+        Return:
+        min_dist -- minimum distance between heavy atoms in two residues
+        """
+        for atom1 in resid1.atoms:
+            atom_name_1 = atom1.name
+            if atom_name_1.startswith('H'):
+                continue
+            coor_1 = atom1.position
+            for atom2 in resid2.atoms:
+                atom_name_2 = atom2.name
+                if atom_name_2.startswith('H'):
+                    continue
+                coor_2 = atom2.position
+                dist_12 = compute_distance(coor_1, coor_2)
+                if dist_12 < dfcontact:
+                    return True
+        return False
     def count_atomic_contact(resid1, resid2):
         """
         Keyword Arguments:
@@ -229,6 +258,7 @@ def main(PDB_name, is_scaled):
         contact_count -- array of contact counts in each itype
         """
         contact_count = [0 for i in range(17)]
+        contact_count[ITYPE_offst] = 1
         res_name_1 = resid1.resname
         res_name_2 = resid2.resname
         num_short_range_contact = 0
@@ -307,7 +337,7 @@ def main(PDB_name, is_scaled):
         if contact_count[ITYPE_SS_SB] >= 2:
             contact_count[ITYPE_SS_QX] += contact_count[ITYPE_SS_SB] - 1
             contact_count[ITYPE_SS_SB] = 1
-        return contact_count
+        return contact_count[:]
             
 
     ###########################################################################
@@ -334,8 +364,10 @@ def main(PDB_name, is_scaled):
     top_cg_pro_dihedrals = []
     top_cg_pro_13 = []
     top_cg_pro_14 = []
+    top_cg_pro_contact = []
     param_cg_pro_e_13 = []
     param_cg_pro_e_14 = []
+    param_cg_pro_e_contact = []
 
     # ====================================
     # Get coordinates and basic properties
@@ -375,7 +407,7 @@ def main(PDB_name, is_scaled):
         coori = cai.position
         coorj = caj.position
         dist_ij = compute_distance(coori, coorj)
-        top_cg_pro_bonds.append((i, i + 1, dist_ij))
+        top_cg_pro_bonds.append((i + 1, dist_ij))
 
     # ======
     # angles
@@ -393,30 +425,32 @@ def main(PDB_name, is_scaled):
         coori = cai.position
         coork = cak.position
         dist_ik = compute_distance(coori, coork)
-        top_cg_pro_angles.append(i)
-        top_cg_pro_13.append((i, dist_ik))
+        top_cg_pro_angles.append(i + 1)
+        top_cg_pro_13.append((i + 1, dist_ik))
 
         # count AICG2+ atomic contact
         ri = pro_atom_group.residues[i]
-        rj = pro_atom_group.residues[i + 2]
-        contact_counts = count_atomic_contact(ri, rj)
+        rk = pro_atom_group.residues[i + 2]
+        contact_counts = count_atomic_contact(ri, rk)
 
         # calculate AICG2+ pairwise energy
-        e_local = pairwise_energy[ITYPE_offst]
-        for k, w in enumerate( contact_counts ):
-            e_local += w * pairwise_energy[k]
+        e_local = 0
+        for n, w in enumerate( contact_counts ):
+            e_local += w * pairwise_energy[n]
         if e_local > ene_local_upper_lim:
             e_local = ene_local_upper_lim
         if e_local < ene_local_lower_lim:
             e_local = ene_local_lower_lim
         e_ground_local += e_local
         e_ground_13 += e_local
-        mba += mba
+        mba += 1
         param_cg_pro_e_13.append(e_local)
 
     # =========
     # dihedrals
     # =========
+    e_ground_14 = 0.0
+    mdih = 0
     for i in range(cg_pro_num - 3):
         cai = calpha_list[i]
         caj = calpha_list[i + 1]
@@ -431,8 +465,88 @@ def main(PDB_name, is_scaled):
         coork = cak.position
         coorl = cal.position
         dihed = compute_dihedral(coori, coorj, coork, coorl)
-        top_cg_pro_dihedrals.append(i)
-        top_cg_pro_14.append((i, dihed))
+        top_cg_pro_dihedrals.append(i + 1)
+        top_cg_pro_14.append((i + 1, dihed))
+
+        # count AICG2+ atomic contact
+        ri = pro_atom_group.residues[i]
+        rl = pro_atom_group.residues[i + 3]
+        contact_counts = count_atomic_contact(ri, rl)
+
+        # calculate AICG2+ pairwise energy
+        e_local = 0
+        for n, w in enumerate( contact_counts ):
+            e_local += w * pairwise_energy[n]
+        if e_local > ene_local_upper_lim:
+            e_local = ene_local_upper_lim
+        if e_local < ene_local_lower_lim:
+            e_local = ene_local_lower_lim
+        e_ground_local += e_local
+        e_ground_14 += e_local
+        mdih += 1
+        param_cg_pro_e_14.append(e_local)
+
+    # =========
+    # Normalize
+    # =========
+    e_ground_local /= (mba + mdih)
+    e_ground_13 /= mba
+    e_ground_14 /= mdih
+    
+    if scale_scheme == 0:
+        for i in range(len(param_cg_pro_e_13)):
+            param_cg_pro_e_13[i] *= aicg2p_13_ave / e_ground_13
+        for i in range(len(param_cg_pro_e_14)):
+            param_cg_pro_e_14[i] *= aicg2p_14_ave / e_ground_14
+    elif scale_scheme == 1:
+        for i in range(len(param_cg_pro_e_13)):
+            param_cg_pro_e_13[i] *= -aicg2p_13_gen
+        for i in range(len(param_cg_pro_e_14)):
+            param_cg_pro_e_14[i] *= -aicg2p_14_gen
+
+    # ======================================================
+    # Native contacts and aicg2+ pairwise energy coefficient
+    # ======================================================
+    e_ground_contact = 0.0
+    num_contact = 0
+    for i in range(cg_pro_num - 4):
+        cai = calpha_list[i]
+        coor_cai = cai.position
+        residi = pro_atom_group.residues[i]
+        for j in range(i + 4, cg_pro_num):
+            caj = calpha_list[j]
+            coor_caj = caj.position
+            residj = pro_atom_group.residues[j]
+            if is_go_contact(residi, residj):
+                native_dist = compute_distance(coor_cai, coor_caj)
+                num_contact += 1
+                top_cg_pro_contact.append((i + 1, j + 1, native_dist))
+
+                # count AICG2+ atomic contact
+                contact_counts = count_atomic_contact(residi, residj)
+
+                # calculate AICG2+ pairwise energy
+                e_local = 0
+                for n, w in enumerate( contact_counts ):
+                    e_local += w * pairwise_energy[n]
+                if e_local > ene_local_upper_lim:
+                    e_local = ene_local_upper_lim
+                if e_local < ene_local_lower_lim:
+                    e_local = ene_local_lower_lim
+                e_ground_contact += e_local
+                num_contact += 1
+                param_cg_pro_e_contact.append(e_local)
+
+    # normalize
+    e_ground_contact /= num_contact
+
+    if scale_scheme == 0:
+        for i in range(len(param_cg_pro_e_contact)):
+            param_cg_pro_e_contact[i] *= aicg2p_contact_ave / e_ground_contact
+    elif scale_scheme == 1:
+        for i in range(len(param_cg_pro_e_contact)):
+            param_cg_pro_e_contact[i] *= -aicg2p_contact_gen
+
 
     ###########################################################################
     #   ___  _   _ _____ ____  _   _ _____ 
@@ -453,77 +567,108 @@ def main(PDB_name, is_scaled):
 
         itp_atm_head = "[ atoms ] \n"
         itp_atm_comm = ";{0:>9}{1:>5}{2:>10}{3:>5}{4:>5}{5:>5}{6:>8}{7:>8}\n".format("nr", "type", "resnr", "res", "atom", "cg", "charge", "mass")
-        itp_atm_line = "{atm[0]:>10d}{atm[1]:>5}{atm[2]:>10d}{atm[3]:>5}{atm[4]:>5}{cgnr:>5d}{atm[5]:>8.3f}{atm[6]:>8.3f} \n"
+        itp_atm_line = "{a[2]:>10d}{a[1]:>5}{a[0]:>10d}{a[1]:>5}{a[3]:>5}{cgnr:>5d}{a[4]:>8.3f}{a[5]:>8.3f} \n"
 
         itp_bnd_head = "[ bonds ] \n"
-        itp_bnd_com1 = ";{0:>9}{1:>10}{2:>5}{3:>18}{4:>18} \n".format("i", "j", "f", "eq", "k2")
-        itp_bnd_com2 = ";{0:>9}{1:>10}{2:>5}{3:>18}{4:>18} \n".format("i", "j", "f", "eq", "k4")
-        itp_bnd_line = "{bond[0]:>10d}{bond[1]:>10d}{functype:>5d}{bond[2]:>18.4E}{k:>18.4E} \n"
+        itp_bnd_comm = ";{0:>9}{1:>10}{2:>5}{3:>18}{4:>18} \n".format("i", "j", "f", "eq", "k2")
+        itp_bnd_line = "{bi:>10d}{bj:>10d}{functype:>5d}{eq:>18.4E}{k:>18.4E} \n"
 
-        itp_ang_head = "[ angles ] \n"
-        itp_ang_comm = ";{0:>9}{1:>10}{2:>10}{3:>5}{4:>18}{5:>18} \n".format("i", "j", "k", "f", "eq", "k")
-        itp_ang_line = "{ang[0]:>10d}{ang[1]:>10d}{ang[2]:>10d}{functype:>5d}{ang[3]:>18.4E}{ang[4]:>18.4E} \n"
+        itp_13_head = "[ angles ] ; AICG2+ 1-3 interaction \n"
+        itp_13_comm = ";{0:>9}{1:>10}{2:>10}{3:>5}{4:>15}{5:>15}{6:>15} \n".format("i", "j", "k", "f", "eq", "k", "w")
+        itp_13_line = "{ai:>10d}{aj:>10d}{ak:>10d}{functype:>5d}{eq:>15.4E}{k:>15.4E}{w:>15.4E} \n"
 
-        itp_dih_G_head = "[ dihedrals ] \n"
-        itp_dih_G_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5}{5:>18}{6:>18}{7:>18} \n".format("i", "j", "k", "l", "f", "eq", "k", "w")
-        itp_dih_G_line = "{dih[0]:>10d}{dih[1]:>10d}{dih[2]:>10d}{dih[3]:>10d}{functype:>5d}{dih[4]:>18.4E}{k:>18.4E}{sig:>18.4E} \n"
+        itp_ang_head = "[ angles ] ; AICG2+ flexible local interaction \n"
+        itp_ang_comm = ";{0:>9}{1:>10}{2:>10}{3:>5} \n".format("i", "j", "k", "f")
+        itp_ang_line = "{ai:>10d}{aj:>10d}{ak:>10d}{functype:>5d} \n"
 
-        itp_dih_P_head = "[ dihedrals ] \n"
-        itp_dih_P_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5}{5:>18}{6:>18}{7:>5} \n".format("i", "j", "k", "l", "f", "eq", "k", "n")
-        itp_dih_P_line = "{dih[0]:>10d}{dih[1]:>10d}{dih[2]:>10d}{dih[3]:>10d}{functype:>5d}{dih[4]:>18.4E}{k:>18.4E}{n:>5d} \n"
+        itp_dih_G_head = "[ dihedrals ] ; AICG2+ Gaussian dihedrals \n"
+        itp_dih_G_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5}{5:>15}{6:>15}{7:>15} \n".format("i", "j", "k", "l", "f", "eq", "k", "w")
+        itp_dih_G_line = "{di:>10d}{dj:>10d}{dk:>10d}{dl:>10d}{functype:>5d}{eq:>15.4E}{k:>15.4E}{sig:>15.4E} \n"
+
+        itp_dih_F_head = "[ dihedrals ] ; AICG2+ flexible local interation \n"
+        itp_dih_F_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5} \n".format("i", "j", "k", "l", "f")
+        itp_dih_F_line = "{di:>10d}{dj:>10d}{dk:>10d}{dl:>10d}{functype:>5d} \n"
 
 
-        for j in range(2):
-            itp_name = "dna_strand{0}.itp".format(j + 1)
-            itp_file = open(itp_name, 'w')
-            strnd_atm_list = dna_atm_list[j]
-            strnd_bnd_list = dna_bnd_list[j]
-            strnd_ang_list = dna_ang_list[j]
-            strnd_dih_P_list = dna_dih_P_list[j]
-            strnd_dih_G_list = dna_dih_G_list[j]
-            # write molecule type information
-            itp_strand_name = "dna_strand_{0}".format(j + 1)
-            itp_file.write(itp_mol_head)
-            itp_file.write(itp_mol_comm)
-            itp_file.write(itp_mol_line.format(itp_strand_name, MOL_NR_EXCL))
-            itp_file.write("\n")
-            # write atoms information
-            itp_file.write(itp_atm_head)
-            itp_file.write(itp_atm_comm)
-            for i, a in enumerate(strnd_atm_list):
-                itp_file.write(itp_atm_line.format(atm=a, cgnr=CG_ATOM_FUNC_NR))
-            itp_file.write("\n")
-            # write bond information
-            itp_file.write(itp_bnd_head)
-            itp_file.write(itp_bnd_com1)
-            for i, b in enumerate(strnd_bnd_list):
-                itp_file.write(itp_bnd_line.format(bond=b, functype=CG_BOND_FUNC4_NR, k=bond_k_2*2))
-            # itp_file.write(itp_bnd_com2)
-            # for i, b in enumerate(strnd_bnd_list):
-                # itp_file.write(itp_bnd_line.format(bond=b, functype=CG_BOND_FUNC4_NR, k=bond_k_4))
-            itp_file.write("\n")
-            # write angle information
-            itp_file.write(itp_ang_head)
-            itp_file.write(itp_ang_comm)
-            for i, a in enumerate(strnd_ang_list):
-                itp_file.write(itp_ang_line.format(ang=a, functype=CG_ANG_FUNC_NR))
-            itp_file.write("\n")
-            # write Gaussian dihedral information
-            itp_file.write(itp_dih_G_head)
-            itp_file.write(itp_dih_G_comm)
-            for i, d in enumerate(strnd_dih_G_list):
-                itp_file.write(itp_dih_G_line.format(dih=d, functype=CG_DIH_GAUSS_FUNC_NR, k=dih_gauss_k, sig=dih_gauss_sigma))
-            itp_file.write("\n")
-            # write Periodic dihedral information
-            itp_file.write(itp_dih_P_head)
-            itp_file.write(itp_dih_P_comm)
-            for i, d in enumerate(strnd_dih_P_list):
-                itp_file.write(itp_dih_P_line.format(dih=d, functype=CG_DIH_PERIODIC_FUNC_NR, k=dih_periodic_k, n=CG_DIH_PERIODIC_FUNC_SP))
-            itp_file.write("\n")
+        itp_name = protein_name + ".itp"
+        itp_file = open(itp_name, 'w')
 
-            itp_file.close()
+        # write molecule type information
+        itp_system_name = "Pro_{0}".format(protein_name)
+        itp_file.write(itp_mol_head)
+        itp_file.write(itp_mol_comm)
+        itp_file.write(itp_mol_line.format(itp_system_name, MOL_NR_EXCL))
+        itp_file.write("\n")
 
-    # output_itp()
+        # write atoms information
+        itp_file.write(itp_atm_head)
+        itp_file.write(itp_atm_comm)
+        for i, atom in enumerate(top_cg_pro_atoms):
+            itp_file.write(itp_atm_line.format(a=atom, cgnr=CG_ATOM_FUNC_NR))
+        itp_file.write("\n")
+
+        # write bond information
+        itp_file.write(itp_bnd_head)
+        itp_file.write(itp_bnd_comm)
+        for i, b in enumerate(top_cg_pro_bonds):
+            itp_file.write(itp_bnd_line.format(bi       = b[0],
+                                               bj       = b[0] + 1,
+                                               functype = CG_BOND_FUNC_TYPE,
+                                               eq       = b[1] * 0.1,
+                                               k        = bond_k))
+        itp_file.write("\n")
+
+        # write 13 interaction information
+        itp_file.write(itp_13_head)
+        itp_file.write(itp_13_comm)
+        for i, a in enumerate(top_cg_pro_13):
+            itp_file.write(itp_13_line.format(ai       = a[0],
+                                               aj       = a[0] + 1,
+                                               ak       = a[0] + 2,
+                                               functype = CG_ANG_G_FUNC_TYPE,
+                                               eq       = a[1] * 0.1,
+                                               k        = param_cg_pro_e_13[i] * CAL2JOU,
+                                               w        = ang_gauss_sigma))
+        itp_file.write("\n")
+
+        # write angle interaction information
+        itp_file.write(itp_ang_head)
+        itp_file.write(itp_ang_comm)
+        for i, a in enumerate(top_cg_pro_angles):
+            itp_file.write(itp_ang_line.format(ai       = a,
+                                               aj       = a + 1,
+                                               ak       = a + 2,
+                                               functype = CG_ANG_F_FUNC_TYPE))
+        itp_file.write("\n")
+
+        # write Gaussian dihedral information
+        itp_file.write(itp_dih_G_head)
+        itp_file.write(itp_dih_G_comm)
+        for i, d in enumerate(top_cg_pro_14):
+            itp_file.write(itp_dih_G_line.format(di       = d[0],
+                                                 dj       = d[0] + 1, 
+                                                 dk       = d[0] + 2, 
+                                                 dl       = d[0] + 3, 
+                                                 functype = CG_DIH_G_FUNC_TYPE,
+                                                 eq       = d[1],
+                                                 k        = param_cg_pro_e_14[i] * CAL2JOU,
+                                                 sig      = dih_gauss_sigma))
+        itp_file.write("\n")
+
+        # write local flexible dihedral information
+        itp_file.write(itp_dih_F_head)
+        itp_file.write(itp_dih_F_comm)
+        for i, d in enumerate(top_cg_pro_dihedrals):
+            itp_file.write(itp_dih_F_line.format(di       = d,
+                                                 dj       = d + 1, 
+                                                 dk       = d + 2, 
+                                                 dl       = d + 3, 
+                                                 functype = CG_DIH_G_FUNC_TYPE))
+        itp_file.write("\n")
+
+        itp_file.close()
+
+    output_itp()
 
     # ================
     # Output .gro file
@@ -559,7 +704,8 @@ if __name__ == '__main__':
     def parse_arguments():
         parser = argparse.ArgumentParser(description='Generate 3SPN.2C .itp and .gro files from DNA PDB.')
         parser.add_argument('pdb', type=str, help="PDB file name.")
-        parser.add_argument('-s', '--scale', help="Scale AICG local interactions.", action="store_true")
+        parser.add_argument('-s', '--scale', type=int, choices=[0, 1], default=0,
+                            help="Scale local interactions: 0) average; 1) general")
         return parser.parse_args()
     args = parse_arguments()
     main(args.pdb, args.scale)
