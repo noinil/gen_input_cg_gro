@@ -27,7 +27,7 @@ Output:
 - A topology file `xxx.itp`
 - A coordinate file `xxx.gro`
 
-![Protein AICG2+ file preparation.](/img/pro_aicg2p.gif)
+![Protein AICG2+ file preparation.](/share/img/pro_aicg2p.gif)
 
 ### CG DNA (the [3SPN.2C](https://doi.org/10.1063/1.4897649) model)
 
@@ -50,4 +50,4 @@ What we get:
 - A `.gro` file with coarse-grained particles
 - Two `.itp` topology files for the two strands of dsDNA
 
-![DNA 3SPN.2C file preparation.](/img/dna_3spn2c.gif)
+![DNA 3SPN.2C file preparation.](/share/img/dna_3spn2c.gif)
