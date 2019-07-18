@@ -747,7 +747,7 @@ if __name__ == '__main__':
     def parse_arguments():
         parser = argparse.ArgumentParser(description='Generate 3SPN.2C .itp and .gro files from DNA PDB.')
         parser.add_argument('pdb', type=str, help="PDB file name.")
-        parser.add_argument('-s', '--scale', type=int, choices=[0, 1], default=0,
+        parser.add_argument('-s', '--scale', type=int, choices=[0, 1], default=1,
                             help="Scale local interactions: 0) average; 1) general")
         return parser.parse_args()
     args = parse_arguments()
