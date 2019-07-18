@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DNA3SPNGRO_BIN_PATH=~/Workspace/dna_3spn_gro/DNA3SPNGRO
+DNA3SPNGRO_BIN_PATH=~/Workspace/genesis_input_cg_gro/DNA_3SPN2C
 export PATH=$PATH:~/Workspace/x3dna-v2.4/bin
 export X3DNA=~/Workspace/x3dna-v2.4
 

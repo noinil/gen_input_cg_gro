@@ -2,6 +2,7 @@
 
 import numpy as np
 import MDAnalysis 
+from tqdm import tqdm
 
 def main(PDB_name, flag_head_phos, flag_psf_output):
     ###########################################################################
@@ -48,6 +49,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     ###########################################################################
     #                     Read in structural info from PDB                    #
     ###########################################################################
+    print("> Step 1: open PDB file.")
     u = MDAnalysis.Universe(PDB_name)
 
     selstr_DNA_a = "nucleic and segid {0}".format(chainID_DNA_a)
@@ -76,7 +78,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         cg_dna_particle_charge = []
         cg_dna_particle_mass = []
         resid_list = list(dna_atom_group.residues.resids)
-        for i, j in enumerate(resid_list):
+        for i, j in enumerate(tqdm( resid_list )):
             tmp_resname = dna_atom_group.residues[i].resname
             # Phosphate
             if i > 0 or flag_head_phos == 1:
@@ -105,7 +107,10 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             cg_dna_particle_resname.append(tmp_resname)
         return (cg_dna_coors, cg_dna_particle_name, cg_dna_particle_charge, cg_dna_particle_mass, cg_dna_particle_resname)
 
+    print("> Step 2: find out CG particles.")
+    print(">         strand 1:")
     cg_dna_a_coors, cg_dna_a_p_name, cg_dna_a_p_charge, cg_dna_a_p_mass, cg_dna_a_p_resname = cg_dna_top(sel_dna_a)
+    print(">         strand 2:")
     cg_dna_b_coors, cg_dna_b_p_name, cg_dna_b_p_charge, cg_dna_b_p_mass, cg_dna_b_p_resname = cg_dna_top(sel_dna_b)
 
     # Assign CG particle ID and residue ID
@@ -247,6 +252,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     dna_dih_G_list = [[], []]
     dna_dih_P_list = [[], []]
     for j in range(2):          # j == 0: chain A, j == 1: chain B
+        print("> Step 3.{0}: DNA strand {0}:".format(j + 1))
         cg_dna_p_num     = cg_dna_a_p_num     if j == 0 else cg_dna_b_p_num
         cg_dna_coors     = cg_dna_a_coors     if j == 0 else cg_dna_b_coors
         cg_dna_p_ID      = cg_dna_a_p_ID      if j == 0 else cg_dna_b_p_ID
@@ -255,7 +261,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         cg_dna_r_ID      = cg_dna_a_r_ID      if j == 0 else cg_dna_b_r_ID
         cg_dna_p_mass    = cg_dna_a_p_mass    if j == 0 else cg_dna_b_p_mass
         cg_dna_p_charge  = cg_dna_a_p_charge  if j == 0 else cg_dna_b_p_charge
-        for i_dna in range(cg_dna_p_num):
+        for i_dna in tqdm( range(cg_dna_p_num) ):
             if cg_dna_p_name[i_dna] == "DS":
                 # atom S
                 dna_atm_list[j].append((cg_dna_p_ID[i_dna],
@@ -431,6 +437,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
 
             itp_file.close()
 
+    print("> Step 4: output topology information to itp.")
     output_itp()
 
     # ================
@@ -476,6 +483,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                                                 vz       = 0.0))
         gro_file.write(GRO_BOX_LINE.format(box_v1x =0.0, box_v2y =0.0, box_v3z =0.0))
         gro_file.close()
+    print("> Step 5: output coordinate information to gro.")
     output_gro()
 
 
@@ -489,4 +497,8 @@ if __name__ == '__main__':
         return parser.parse_args()
     args = parse_arguments()
     flag_head_phos = 1 if args.headPHOS else 0
+
+    print("> Welcome!")
+    print("> This tool helps you prepare CG DNA files for MD simulations in Genesis.")
+    print("> ------ ")
     main(args.pdb, flag_head_phos, args.psf)

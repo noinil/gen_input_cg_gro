@@ -751,6 +751,7 @@ if __name__ == '__main__':
                             help="Scale local interactions: 0) average; 1) general")
         return parser.parse_args()
     args = parse_arguments()
+
     print("> Welcome!")
     print("> This tool helps you prepare CG protein files for MD simulations in Genesis.")
     print("> ------ ")
