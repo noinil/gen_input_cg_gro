@@ -221,10 +221,9 @@ def main(PDB_name, scale_scheme):
         if is_cation(atom_name_2, res_name_2) and is_anion(atom_name_1, res_name_1):
             return True
         return False
-    def is_anti_sb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2):
-        if is_cation(atom_name_1, res_name_1) and is_cation(atom_name_2, res_name_2):
-            return True
-        if is_anion(atom_name_2, res_name_2)  and is_anion(atom_name_1, res_name_1):
+    def is_nonsb_charge_pair(atom_name_1, res_name_1, atom_name_2, res_name_2):
+        if is_cation(atom_name_1, res_name_1) or is_anion(atom_name_1, res_name_1) or \
+           is_cation(atom_name_2, res_name_2) or is_anion(atom_name_2, res_name_2):
             return True
         return False
     def is_go_contact(resid1, resid2):
@@ -276,7 +275,7 @@ def main(PDB_name, scale_scheme):
 
                 is_hb = is_hb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
                 is_sb = is_sb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
-                is_anti_sb = is_anti_sb_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
+                is_nonsb_charge = is_nonsb_charge_pair(atom_name_1, res_name_1, atom_name_2, res_name_2)
                 is_1_backbone = is_backbone(atom_name_1)
                 is_2_backbone = is_backbone(atom_name_2)
                 if dist_12 < dfcontact:
@@ -302,11 +301,11 @@ def main(PDB_name, scale_scheme):
                                     contact_count[ITYPE_SS_QX] += 1
                             elif dist_12 < hb_cutoff:
                                 contact_count[ITYPE_SS_HB] += 1
-                            elif is_anti_sb:
+                            elif is_nonsb_charge:
                                 contact_count[ITYPE_SS_QX] += 1
                             else:
                                 contact_count[ITYPE_SS_DA] += 1
-                        elif is_anti_sb:
+                        elif is_nonsb_charge:
                             contact_count[ITYPE_SS_QX] += 1
                         elif atom_name_1.startswith('C') or atom_name_2.startswith('C'):
                             contact_count[ITYPE_SS_CX] += 1
@@ -317,11 +316,11 @@ def main(PDB_name, scale_scheme):
                         if is_hb:
                             if dist_12 < hb_cutoff:
                                 contact_count[ITYPE_SB_HB] += 1
-                            elif is_anti_sb:
+                            elif is_nonsb_charge:
                                 contact_count[ITYPE_SB_QX] += 1
                             else:
                                 contact_count[ITYPE_SB_DA] += 1
-                        elif is_anti_sb:
+                        elif is_nonsb_charge:
                             contact_count[ITYPE_SB_QX] += 1
                         elif atom_name_1.startswith('C') or atom_name_2.startswith('C'):
                             contact_count[ITYPE_SB_CX] += 1
@@ -432,6 +431,8 @@ def main(PDB_name, scale_scheme):
         ri = pro_atom_group.residues[i]
         rk = pro_atom_group.residues[i + 2]
         contact_counts = count_atomic_contact(ri, rk)
+
+        print("{0:>2d} {1:>2d}>{2}".format(i, i+1, contact_counts[1:]))
 
         # calculate AICG2+ pairwise energy
         e_local = 0
@@ -663,7 +664,7 @@ def main(PDB_name, scale_scheme):
                                                  dj       = d + 1, 
                                                  dk       = d + 2, 
                                                  dl       = d + 3, 
-                                                 functype = CG_DIH_G_FUNC_TYPE))
+                                                 functype = CG_DIH_F_FUNC_TYPE))
         itp_file.write("\n")
 
         itp_file.close()
