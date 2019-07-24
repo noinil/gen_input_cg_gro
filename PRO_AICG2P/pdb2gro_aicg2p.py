@@ -741,6 +741,8 @@ def main(PDB_name, scale_scheme):
     print("> Step 8: output coordinate information to gro.")
     output_gro()
 
+    print("[1;32m DONE! [0m ")
+    print(" Please check the .itp and .gro files.")
 
 if __name__ == '__main__':
     import argparse
