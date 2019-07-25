@@ -4,7 +4,7 @@ import numpy as np
 import MDAnalysis
 from tqdm import tqdm
 
-def main(PDB_name, scale_scheme):
+def main(PDB_name, scale_scheme, charge_filename):
     ###########################################################################
     #                         Variables and constants                         #
     ###########################################################################
@@ -385,12 +385,25 @@ def main(PDB_name, scale_scheme):
         cg_pro_coors[i] = ca.position
         charge = aa_charge_dict[ca.resname]
         mass = aa_mass_dict[ca.resname]
-        top_cg_pro_atoms.append((i + 1,      # residue index
+        top_cg_pro_atoms.append([i + 1,      # residue index
                                  ca.resname, # residue name
                                  i + 1,      # atom index
                                  "CA",       # atom name
                                  charge,      
-                                 mass))
+                                 mass])
+
+    if len(charge_filename) > 0:
+        try:
+            with open(charge_filename) as charge_fin:
+                for line in charge_fin:
+                    charge_data = line.split()
+                    if len(charge_data) < 1:
+                        continue
+                    i, c = int(charge_data[0]) - 1, float(charge_data[1])
+                    top_cg_pro_atoms[i][4] = c
+        except:
+            print("ERROR in user-defined charge distribution.\n")
+            exit(1)
     
     ###########################################################################
     #                           AICG2+ Calculations                           #
@@ -750,11 +763,13 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description='Generate 3SPN.2C .itp and .gro files from DNA PDB.')
         parser.add_argument('pdb', type=str, help="PDB file name.")
         parser.add_argument('-s', '--scale', type=int, choices=[0, 1], default=1,
-                            help="Scale local interactions: 0) average; 1) general")
+                            help="Scale local interactions: 0) average; 1) general (default)")
+        parser.add_argument('-c', '--charge', type=str, default="",
+                            help="Charge redistribution file.")
         return parser.parse_args()
     args = parse_arguments()
 
     print("> Welcome!")
     print("> This tool helps you prepare CG protein files for MD simulations in Genesis.")
     print("> ------ ")
-    main(args.pdb, args.scale)
+    main(args.pdb, args.scale, args.charge)
