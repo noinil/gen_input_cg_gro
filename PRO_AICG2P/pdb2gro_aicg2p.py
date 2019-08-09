@@ -181,29 +181,29 @@ def main(PDB_name, scale_scheme, charge_filename):
             return True
         return False
     def is_hb_donor(atom_name, res_name):
-        if atom_name.startswith( 'N' ):
+        if atom_name[0] == 'N' :
             return True
-        if atom_name.startswith( 'S' ) and res_name == 'CYS':
+        if atom_name[0] == 'S' and res_name == 'CYS':
             return True
-        if atom_name.startswith( 'O' ):
+        if atom_name[0] == 'O' :
             if ( res_name == 'SER' and atom_name == 'OG'  ) or \
                ( res_name == 'THR' and atom_name == 'OG1' ) or \
                ( res_name == 'TYR' and atom_name == 'OH'  ):
                 return True
         return False
     def is_hb_acceptor(atom_name):
-        if atom_name.startswith('O') or atom_name.startswith('S'):
+        if atom_name[0] == 'O' or atom_name[0] == 'S':
             return True
         return False
     def is_cation(atom_name, res_name):
-        if atom_name.startswith( 'N' ):
+        if atom_name[0] == 'N' :
             if ( res_name == 'ARG' and atom_name == 'NH1' ) or \
                ( res_name == 'ARG' and atom_name == 'NH2' ) or \
                ( res_name == 'LYS' and atom_name == 'NZ'  ):
                 return True
         return False
     def is_anion(atom_name, res_name):
-        if atom_name.startswith( 'O' ):
+        if atom_name[0] == 'O' :
             if ( res_name == 'GLU' and atom_name == 'OE1' ) or \
                ( res_name == 'GLU' and atom_name == 'OE2' ) or \
                ( res_name == 'ASP' and atom_name == 'OD1' ) or \
@@ -237,12 +237,12 @@ def main(PDB_name, scale_scheme, charge_filename):
         """
         for atom1 in resid1.atoms:
             atom_name_1     = atom1.name
-            if atom_name_1.startswith('H'):
+            if atom_name_1[0] == 'H':
                 continue
             coor_1          = atom1.position
             for atom2 in resid2.atoms:
                 atom_name_2 = atom2.name
-                if atom_name_2.startswith('H'):
+                if atom_name_2[0] == 'H':
                     continue
                 coor_2      = atom2.position
                 dist_12     = compute_distance(coor_1, coor_2)
@@ -264,12 +264,12 @@ def main(PDB_name, scale_scheme, charge_filename):
         num_short_range_contact    = 0
         for atom1 in resid1.atoms:
             atom_name_1 = atom1.name
-            if atom_name_1.startswith('H'):
+            if atom_name_1[0] == 'H':
                 continue
             coor_1      = atom1.position
             for atom2 in resid2.atoms:
                 atom_name_2     = atom2.name
-                if atom_name_2.startswith('H'):
+                if atom_name_2[0] == 'H':
                     continue
                 coor_2          = atom2.position
                 dist_12         = compute_distance(coor_1, coor_2)
@@ -289,7 +289,7 @@ def main(PDB_name, scale_scheme, charge_filename):
                                 contact_count[ITYPE_BB_HB] += 1
                             else:
                                 contact_count[ITYPE_BB_DA] += 1
-                        elif atom_name_1.startswith('C') or atom_name_2.startswith('C'):
+                        elif atom_name_1[0] == 'C' or atom_name_2[0] == 'C':
                             contact_count[ITYPE_BB_CX] += 1
                         else:
                             contact_count[ITYPE_BB_xx] += 1
@@ -308,7 +308,7 @@ def main(PDB_name, scale_scheme, charge_filename):
                                 contact_count[ITYPE_SS_DA] += 1
                         elif is_nonsb_charge:
                             contact_count[ITYPE_SS_QX] += 1
-                        elif atom_name_1.startswith('C') or atom_name_2.startswith('C'):
+                        elif atom_name_1[0] == 'C' or atom_name_2[0] == 'C':
                             contact_count[ITYPE_SS_CX] += 1
                         else:
                             contact_count[ITYPE_SS_xx] += 1
@@ -323,7 +323,7 @@ def main(PDB_name, scale_scheme, charge_filename):
                                 contact_count[ITYPE_SB_DA] += 1
                         elif is_nonsb_charge:
                             contact_count[ITYPE_SB_QX] += 1
-                        elif atom_name_1.startswith('C') or atom_name_2.startswith('C'):
+                        elif atom_name_1[0] == 'C' or atom_name_2 [0] == 'C':
                             contact_count[ITYPE_SB_CX] += 1
                         else:
                             contact_count[ITYPE_SB_xx] += 1

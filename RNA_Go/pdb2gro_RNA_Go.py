@@ -17,6 +17,10 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     std_base_mass     = {'A': 134.1, 'G': 150.1, 'C': 110.1, 'U': 111.1}
     std_rPhos_mass    = 62.97
     std_rSuga_mass    = 131.11
+    # native contact cutoff
+    go_cutoff         = 5.5
+    stack_dih_cutoff  = 40.0
+    stack_dist_cutoff = 6.0
     # k for bond force constants
     bond_k            = {'PS': 26.5, 'SR': 40.3, 'SY': 62.9, 'SP': 84.1}
     # k for angle force constants
@@ -69,6 +73,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     cg_rna_r_ID      = []
     cg_rna_p_ID      = []
     cg_rna_base_type = []
+    aa_rna_residue   = []
 
     num_rna_cg_particle = 0
     resid_list = list(sel_rna.residues.resids)
@@ -88,6 +93,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             cg_rna_p_ID.append(num_rna_cg_particle)
             cg_rna_r_ID.append(i + 1)
             cg_rna_base_type.append('P')
+            aa_rna_residue.append(res_P)
         # Sugar
         num_rna_cg_particle += 1
         res_S = sel_rna.select_atoms(selstr_S.format(j))
@@ -100,6 +106,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         cg_rna_p_ID.append(num_rna_cg_particle)
         cg_rna_r_ID.append(i + 1)
         cg_rna_base_type.append('S')
+        aa_rna_residue.append(res_S)
         # Base
         num_rna_cg_particle += 1
         res_B = sel_rna.select_atoms(selstr_B.format(j))
@@ -116,6 +123,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         cg_rna_p_resname.append(tmp_resname)
         cg_rna_p_ID.append(num_rna_cg_particle)
         cg_rna_r_ID.append(i + 1)
+        aa_rna_residue.append(res_B)
     cg_rna_p_num = num_rna_cg_particle
 
 
@@ -183,6 +191,39 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         if zajiao < 0:
             dih = - dih
         return dih / np.pi * 180.0
+    def is_hydrogen_bond(atom_name_1, atom_name_2):
+        special_atom_list = ['F', 'O', 'N']
+        if atom_name_1 in special_atom_list and atom_name_2 in special_atom_list:
+            return True
+        else:
+            return False
+    def compute_RNA_go_contact(resid1, resid2):
+        """
+        Keyword Arguments:
+        resid1 -- residue 1
+        resid2 -- residue 2
+        Return:
+        min_dist -- minimum distance between heavy atoms in two residues
+        """
+        hb_count = 0
+        min_dist = 1e50
+        for atom1 in resid1.atoms:
+            atom_name_1     = atom1.name
+            if atom_name_1[0] == 'H':
+                continue
+            coor_1          = atom1.position
+            for atom2 in resid2.atoms:
+                atom_name_2 = atom2.name
+                if atom_name_2[0] == 'H':
+                    continue
+                coor_2      = atom2.position
+                dist_12     = compute_distance(coor_1, coor_2)
+                if dist_12 < go_cutoff and is_hydrogen_bond(atom_name_1, atom_name_2):
+                    hb_count += 1
+                if dist_12 < min_dist:
+                    min_dist = dist_12
+        return (min_dist, hb_count)
+
 
     rna_atm_list = []
     rna_bnd_list = []
@@ -192,7 +233,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     rna_contact_st_list = []
     rna_contact_nn_list = []
 
-    print("> Step 3. Determine bond/angle/dihedral/contacts: ")
+    print("> Step 3. Determine bond/angle/dihedral: ")
     for i_rna in tqdm( range(cg_rna_p_num) ):
         if cg_rna_p_name[i_rna] == "RS":
             # atom S
@@ -293,6 +334,50 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             #     rna_dih_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna - 1], cg_rna_p_ID[i_rna + 1], cg_rna_p_ID[i_rna + 2], dih_bsp3s3))
         else:
             print("Error! Wrong RNA type...")
+
+
+    print("> Step 3. Determine contacts: ")
+    rna_stack_list = []
+    rna_bpair_list = []
+    rna_cntct_list = []
+    for i_rna in tqdm( range(cg_rna_p_num - 3) ):
+        cg_pos_i  = cg_rna_coors[i_rna] 
+        cg_name_i = cg_rna_p_name[i_rna]
+        resid_i   = aa_rna_residue.residues[i]
+
+        if cg_name_i == "RP":
+            continue
+
+        for j_rna in range(i_rna + 3, cg_rna_p_num):
+            cg_pos_j  = cg_rna_coors[j_rna]
+            cg_name_j = cg_rna_p_name[j_rna]
+            resid_j   = aa_rna_residue.residues[j]
+
+            if cg_name_j == "RP":
+                continue
+
+            if cg_name_i == "RS" or cg_name_j == "RS":
+                if j_rna < i_rna + 6:
+                    continue
+
+            native_dist = compute_bond(cg_pos_i, cg_pos_j)
+            adist, nhb = compute_RNA_go_contact(resid_i, resid_j)
+            if adist > go_cutoff:
+                continue
+            if j_rna == i_rna + 3 and cg_name_i == "RB":
+                cg_pos_i_sug = cg_rna_coors[i_rna - 1]
+                cg_pos_j_sug = cg_rna_coors[j_rna - 1]
+                st_dih = compute_dihedral(cg_pos_i, cg_pos_i_sug, cg_pos_j_sug, cg_pos_j)
+                if st_dih < stack_dih_cutoff and adist < stack_dist_cutoff:
+                    rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_stack))
+            elif cg_name_i == "RB" and cg_name_j == "RB":
+                if nhb == 2:
+                    rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_bpair_2hb))
+                elif nhb >= 3:
+                    rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_bpair_3hb))
+            else:
+                rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_other))
+                
                 
 
     # ================
@@ -414,3 +499,4 @@ if __name__ == '__main__':
     print("> This tool helps you prepare CG RNA files for MD simulations in Genesis.")
     print("> ------ ")
     main(args.pdb, flag_head_phos, args.psf)
+
