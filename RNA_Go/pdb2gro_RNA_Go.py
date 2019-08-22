@@ -33,7 +33,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     epsilon_bpair_2hb = 2.94
     epsilon_bpair_3hb = 5.37
     # e for other contact:
-    epsilon_other     = { 'SS': 1.48, 'SB': 0.98, 'BB': 0.93 }
+    epsilon_other     = { 'SS': 1.48, 'BS': 0.98, 'SB': 0.98, 'BB': 0.93 }
 
     # "NREXCL" in "[moleculetype]"
     MOL_NR_EXCL       = 3
@@ -56,9 +56,9 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
 
     selstr_RNA = "nucleic"
 
-    selstr_P = "resid {0} and (name P or name OP*)"
-    selstr_S = "resid {0} and (name *') and not (name H*)"
-    selstr_B = "resid {0} and not (name *' or name OP* or name P or name H*)"
+    selstr_P = "resid {0} and (name P O1P O2P OP1 OP2)"
+    selstr_S = "resid {0} and (name O5' C5' C4' O4' C1' C2' O2' C3' O3')"
+    selstr_B = "resid {0} and not (name P O1P O2P OP1 OP2 O5' C5' C4' O4' C1' C2' O2' C3' O3' H*)"
     selstr_RP_cg = "resid {0} and (name P)"
     selstr_RS_cg = "resid {0} and (name C1' or name C2' or name C3' or name C4' or name O4')"
     selstr_RR_cg = "resid {0} and (name N1)"
@@ -96,6 +96,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             cg_rna_r_ID.append(i + 1)
             cg_rna_base_type.append('P')
             aa_rna_residue.append(res_P)
+            # print("   >>>>>>>> P:        ", res_P)
         # Sugar
         num_rna_cg_particle += 1
         res_S = sel_rna.select_atoms(selstr_S.format(j))
@@ -109,6 +110,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         cg_rna_r_ID.append(i + 1)
         cg_rna_base_type.append('S')
         aa_rna_residue.append(res_S)
+        # print("   >>>>>>>> S:        ", res_S)
         # Base
         num_rna_cg_particle += 1
         res_B = sel_rna.select_atoms(selstr_B.format(j))
@@ -126,7 +128,9 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         cg_rna_p_ID.append(num_rna_cg_particle)
         cg_rna_r_ID.append(i + 1)
         aa_rna_residue.append(res_B)
+        # print("   >>>>>>>> B:        ", res_B)
     cg_rna_p_num = num_rna_cg_particle
+    # print(aa_rna_residue)
 
 
     ###########################################################################
@@ -169,7 +173,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     ###########################################################################
     #                       Determine .itp parameters                       #
     ###########################################################################
-    def compute_bond(coor1, coor2):
+    def compute_distance(coor1, coor2):
         vec = coor1 - coor2
         return np.linalg.norm(vec)
     def compute_angle(coor1, coor2, coor3):
@@ -220,7 +224,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                     continue
                 coor_2      = atom2.position
                 dist_12     = compute_distance(coor_1, coor_2)
-                if dist_12 < go_cutoff and is_hydrogen_bond(atom_name_1, atom_name_2):
+                if dist_12 < go_cutoff and is_hydrogen_bond(atom_name_1[0], atom_name_2[0]):
                     hb_count += 1
                 if dist_12 < min_dist:
                     min_dist = dist_12
@@ -249,7 +253,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             # bond S--B
             coor_s    = cg_rna_coors[i_rna]
             coor_b    = cg_rna_coors[i_rna + 1]
-            r_sb      = compute_bond(coor_s, coor_b)
+            r_sb      = compute_distance(coor_s, coor_b)
             bond_type = "S" + cg_rna_base_type[i_rna + 1]
             k         = bond_k[bond_type] * CAL2JOU
             rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 1], r_sb / 10, k * 2))
@@ -257,7 +261,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             # bond S--P+1
             if i_rna + 2 < cg_rna_p_num:
                 coor_p3 = cg_rna_coors[i_rna + 2]
-                r_sp3   = compute_bond(coor_s, coor_p3)
+                r_sp3   = compute_distance(coor_s, coor_p3)
                 k       = bond_k["SP"] * CAL2JOU
                 rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 2], r_sp3 / 10, k * 2))
             if i_rna + 4 < cg_rna_p_num:
@@ -291,7 +295,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             # bond P--S
             coor_p = cg_rna_coors[i_rna]
             coor_s = cg_rna_coors[i_rna + 1]
-            r_ps   = compute_bond(coor_p, coor_s)
+            r_ps   = compute_distance(coor_p, coor_s)
             k      = bond_k["PS"] * CAL2JOU
             rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 1], r_ps / 10, k * 2))
             # angle P--S--B
@@ -345,7 +349,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     for i_rna in tqdm( range(cg_rna_p_num - 3) ):
         cg_pos_i  = cg_rna_coors[i_rna] 
         cg_name_i = cg_rna_p_name[i_rna]
-        resid_i   = aa_rna_residue.residues[i]
+        resid_i   = aa_rna_residue[i_rna]
 
         if cg_name_i == "RP":
             continue
@@ -353,7 +357,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         for j_rna in range(i_rna + 3, cg_rna_p_num):
             cg_pos_j  = cg_rna_coors[j_rna]
             cg_name_j = cg_rna_p_name[j_rna]
-            resid_j   = aa_rna_residue.residues[j]
+            resid_j   = aa_rna_residue[j_rna]
 
             if cg_name_j == "RP":
                 continue
@@ -362,25 +366,33 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                 if j_rna < i_rna + 6:
                     continue
 
-            native_dist = compute_bond(cg_pos_i, cg_pos_j)
-            adist, nhb = compute_RNA_go_contact(resid_i, resid_j)
+            native_dist = compute_distance(cg_pos_i, cg_pos_j)
+            adist, nhb  = compute_RNA_go_contact(resid_i, resid_j)
+            # print(cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], cg_name_i, cg_name_j, adist, nhb)
             if adist > go_cutoff:
                 continue
             if j_rna == i_rna + 3 and cg_name_i == "RB":
                 cg_pos_i_sug = cg_rna_coors[i_rna - 1]
                 cg_pos_j_sug = cg_rna_coors[j_rna - 1]
                 st_dih = compute_dihedral(cg_pos_i, cg_pos_i_sug, cg_pos_j_sug, cg_pos_j)
-                if st_dih < stack_dih_cutoff and adist < stack_dist_cutoff:
-                    rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_stack))
+                if abs( st_dih ) < stack_dih_cutoff and adist < stack_dist_cutoff:
+                    rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist / 10, epsilon_stack * CAL2JOU))
+                else:
+                    rna_cntct_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist / 10, epsilon_other["BB"] * CAL2JOU))
             elif cg_name_i == "RB" and cg_name_j == "RB":
                 if nhb == 2:
-                    rna_bpair_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_bpair_2hb))
+                    rna_bpair_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist / 10, epsilon_bpair_2hb * CAL2JOU))
                 elif nhb >= 3:
-                    rna_bpair_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_bpair_3hb))
+                    rna_bpair_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist / 10, epsilon_bpair_3hb * CAL2JOU))
+                else:
+                    rna_cntct_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist / 10, epsilon_other["BB"] * CAL2JOU))
             else:
-                rna_cntct_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_other))
-                
-                
+                contact_type = cg_name_i[-1] + cg_name_j[-1]
+                rna_cntct_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist / 10, epsilon_other[contact_type] * CAL2JOU))
+    print(rna_stack_list)
+    print(rna_bpair_list)
+    print(rna_cntct_list)
+
 
     # ================
     # Output .itp file
