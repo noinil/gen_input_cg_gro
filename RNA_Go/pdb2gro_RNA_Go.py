@@ -422,6 +422,10 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         itp_cnt_comm = ";{0:>9}{1:>10}{2:>5}{3:>18}{4:>18} \n".format("i", "j", "f", "eq", "k")
         itp_cnt_line = "{cnt[0]:>10d}{cnt[1]:>10d}{functype:>5d}{cnt[2]:>18.4E}{cnt[3]:>18.4E} \n"
 
+        itp_exc_head = "[ exclusions ] ; Genesis exclusion list\n"
+        itp_exc_comm = ";{0:>9}{1:>10}\n".format("i", "j")
+        itp_exc_line = "{di:>10d}{dj:>10d}\n"
+
         itp_name = "rna_{0}.itp".format(PDB_name[:-4])
         itp_file = open(itp_name, 'w')
 
@@ -457,12 +461,12 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         itp_file.write(itp_dih_head)
         itp_file.write(itp_dih_comm)
         for i, d in enumerate(rna_dih_list):
-            itp_file.write(itp_dih_line.format(dih=d, functype=CG_DIHE_FUNC_NR, eq=d[4] - np.pi, k=d[5], periodic=1))
+            itp_file.write(itp_dih_line.format(dih=d, functype=CG_DIHE_FUNC_NR, eq=d[4] - 180., k=d[5], periodic=1))
         for i, d in enumerate(rna_dih_list):
-            itp_file.write(itp_dih_line.format(dih=d, functype=CG_DIHE_FUNC_NR, eq=3 * d[4] - np.pi, k=d[5] / 2, periodic=3))
+            itp_file.write(itp_dih_line.format(dih=d, functype=CG_DIHE_FUNC_NR, eq=3 * d[4] - 180., k=d[5] / 2, periodic=3))
         itp_file.write("\n")
 
-        # write dihedral information
+        # write contact information
         itp_file.write(itp_cnt_head)
         itp_file.write(itp_cnt_comm)
         for i, c in enumerate(rna_stack_list):
@@ -471,6 +475,17 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             itp_file.write(itp_cnt_line.format(cnt=c, functype=CG_GO_FUNC_NR))
         for i, c in enumerate(rna_cntct_list):
             itp_file.write(itp_cnt_line.format(cnt=c, functype=CG_GO_FUNC_NR))
+
+        # write Genesis local-exclusion list
+        itp_file.write(itp_exc_head)
+        itp_file.write(itp_exc_comm)
+        for i, c in enumerate(rna_stack_list):
+            itp_file.write(itp_exc_line.format(di = c[0], dj = c[1]))
+        for i, c in enumerate(rna_bpair_list):
+            itp_file.write(itp_exc_line.format(di = c[0], dj = c[1]))
+        for i, c in enumerate(rna_cntct_list):
+            itp_file.write(itp_exc_line.format(di = c[0], dj = c[1]))
+        itp_file.write("\n")
 
         itp_file.close()
 
