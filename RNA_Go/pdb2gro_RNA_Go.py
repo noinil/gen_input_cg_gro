@@ -45,6 +45,8 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
     CG_ANGL_FUNC_NR   = 1
     # "f" in "[dihedral]" for Gaussian
     CG_DIHE_FUNC_NR   = 1
+    # "f" in "[pairs]" for Gaussian
+    CG_GO_FUNC_NR     = 2
 
     ###########################################################################
     #                     Read in structural info from PDB                    #
@@ -336,7 +338,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             print("Error! Wrong RNA type...")
 
 
-    print("> Step 3. Determine contacts: ")
+    print("> Step 4. Determine contacts: ")
     rna_stack_list = []
     rna_bpair_list = []
     rna_cntct_list = []
@@ -372,11 +374,11 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
                     rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_stack))
             elif cg_name_i == "RB" and cg_name_j == "RB":
                 if nhb == 2:
-                    rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_bpair_2hb))
+                    rna_bpair_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_bpair_2hb))
                 elif nhb >= 3:
-                    rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_bpair_3hb))
+                    rna_bpair_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_bpair_3hb))
             else:
-                rna_stack_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_other))
+                rna_cntct_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist, epsilon_other))
                 
                 
 
@@ -404,33 +406,41 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         itp_dih_comm = ";{0:>9}{1:>10}{2:>10}{3:>10}{4:>5}{5:>18}{6:>18}{7:>5} \n".format("i", "j", "k", "l", "f", "eq", "k", "n")
         itp_dih_line = "{dih[0]:>10d}{dih[1]:>10d}{dih[2]:>10d}{dih[3]:>10d}{functype:>5d}{eq:>18.4E}{k:>18.4E}{periodic:>5d} \n"
 
+        itp_cnt_head = "[ pairs ] \n"
+        itp_cnt_comm = ";{0:>9}{1:>10}{2:>5}{3:>18}{4:>18} \n".format("i", "j", "f", "eq", "k")
+        itp_cnt_line = "{cnt[0]:>10d}{cnt[1]:>10d}{functype:>5d}{cnt[2]:>18.4E}{cnt[3]:>18.4E} \n"
 
         itp_name = "rna_{0}.itp".format(PDB_name[:-4])
         itp_file = open(itp_name, 'w')
+
         # write molecule type information
         itp_strand_name = "rna_{0}".format(PDB_name[:-4])
         itp_file.write(itp_mol_head)
         itp_file.write(itp_mol_comm)
         itp_file.write(itp_mol_line.format(itp_strand_name, MOL_NR_EXCL))
         itp_file.write("\n")
+
         # write atoms information
         itp_file.write(itp_atm_head)
         itp_file.write(itp_atm_comm)
         for i, a in enumerate(rna_atm_list):
             itp_file.write(itp_atm_line.format(atm=a, cgnr=CG_ATOM_FUNC_NR))
         itp_file.write("\n")
+
         # write bond information
         itp_file.write(itp_bnd_head)
         itp_file.write(itp_bnd_comm)
         for i, b in enumerate(rna_bnd_list):
             itp_file.write(itp_bnd_line.format(bond=b, functype=CG_BOND_FUNC_NR))
         itp_file.write("\n")
+
         # write angle information
         itp_file.write(itp_ang_head)
         itp_file.write(itp_ang_comm)
         for i, a in enumerate(rna_ang_list):
             itp_file.write(itp_ang_line.format(ang=a, functype=CG_ANGL_FUNC_NR))
         itp_file.write("\n")
+
         # write dihedral information
         itp_file.write(itp_dih_head)
         itp_file.write(itp_dih_comm)
@@ -439,6 +449,16 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
         for i, d in enumerate(rna_dih_list):
             itp_file.write(itp_dih_line.format(dih=d, functype=CG_DIHE_FUNC_NR, eq=3 * d[4] - np.pi, k=d[5] / 2, periodic=3))
         itp_file.write("\n")
+
+        # write dihedral information
+        itp_file.write(itp_cnt_head)
+        itp_file.write(itp_cnt_comm)
+        for i, c in enumerate(rna_stack_list):
+            itp_file.write(itp_cnt_line.format(cnt=c, functype=CG_GO_FUNC_NR))
+        for i, c in enumerate(rna_bpair_list):
+            itp_file.write(itp_cnt_line.format(cnt=c, functype=CG_GO_FUNC_NR))
+        for i, c in enumerate(rna_cntct_list):
+            itp_file.write(itp_cnt_line.format(cnt=c, functype=CG_GO_FUNC_NR))
 
         itp_file.close()
 
