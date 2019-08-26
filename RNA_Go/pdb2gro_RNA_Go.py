@@ -256,14 +256,14 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             r_sb      = compute_distance(coor_s, coor_b)
             bond_type = "S" + cg_rna_base_type[i_rna + 1]
             k         = bond_k[bond_type] * CAL2JOU
-            rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 1], r_sb / 10, k * 2))
+            rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 1], r_sb / 10, k * 2 * 100))
 
             # bond S--P+1
             if i_rna + 2 < cg_rna_p_num:
                 coor_p3 = cg_rna_coors[i_rna + 2]
                 r_sp3   = compute_distance(coor_s, coor_p3)
                 k       = bond_k["SP"] * CAL2JOU
-                rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 2], r_sp3 / 10, k * 2))
+                rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 2], r_sp3 / 10, k * 2 * 100))
             if i_rna + 4 < cg_rna_p_num:
                 # Angle S--P+1--S+1
                 coor_p3   = cg_rna_coors[i_rna + 2]
@@ -297,7 +297,7 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             coor_s = cg_rna_coors[i_rna + 1]
             r_ps   = compute_distance(coor_p, coor_s)
             k      = bond_k["PS"] * CAL2JOU
-            rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 1], r_ps / 10, k * 2))
+            rna_bnd_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[i_rna + 1], r_ps / 10, k * 2 * 100))
             # angle P--S--B
             coor_b    = cg_rna_coors[i_rna + 2]
             ang_psb   = compute_angle(coor_p, coor_s, coor_b)
@@ -389,9 +389,6 @@ def main(PDB_name, flag_head_phos, flag_psf_output):
             else:
                 contact_type = cg_name_i[-1] + cg_name_j[-1]
                 rna_cntct_list.append((cg_rna_p_ID[i_rna], cg_rna_p_ID[j_rna], native_dist / 10, epsilon_other[contact_type] * CAL2JOU))
-    print(rna_stack_list)
-    print(rna_bpair_list)
-    print(rna_cntct_list)
 
 
     # ================
